@@ -1,17 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { getMyDetails, login } from "../../services/authService";
+import { login } from "../../services/authService";
 import axios from "axios";
-import useAuthContext from "../../hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-
-  const { setActiveRole } = useAuthContext();
 
   const handleLogin = async () => {
     try {
@@ -28,7 +25,7 @@ const Login = () => {
 
       localStorage.setItem("ACCESS_TOKEN", accessToken);
       localStorage.setItem("REFRESH_TOKEN", refreshToken);
-      
+
       let path = "/login";
 
       if (userDetails.roles.includes("ADMIN")) {
@@ -36,7 +33,7 @@ const Login = () => {
 
       } else if (userDetails.roles.includes("PASSENGER")) {
         path = "/inspector";
-          
+        
       } else if (userDetails.roles.includes("TICKET_INSPECTOR")) {
         path = "/passenger";
       }
@@ -44,7 +41,6 @@ const Login = () => {
       window.location.replace(path);
 
       toast.success("Login successful.");
-
     } catch (error) {
       console.log(error);
 
@@ -52,7 +48,6 @@ const Login = () => {
         const message = error.response?.data?.message;
 
         toast.error(message ?? "Login failed. Please try again.");
-
       } else {
         toast.error("An unexpected error occurred.");
       }
@@ -60,85 +55,79 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-blue-600">RailLanka</h1>
+    <section className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+      {/* Left side: hidden on mobile, visible on md and larger */}
+      <div className="hidden min-h-screen w-full bg-slate-950 md:block">
+        {/* Add your branding or image here */}
+      </div>
 
-          <h2 className="mt-4 text-2xl font-semibold text-slate-800">
-            Welcome Back
-          </h2>
+      {/* Right side: login form */}
+      <div className="flex min-h-screen w-full items-center justify-center bg-slate-900 px-6 py-8">
+        <div className="w-full max-w-md">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleLogin();
+            }}
+            className="space-y-5"
+          >
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-slate-200"
+              >
+                Email
+              </label>
 
-          <p className="mt-2 text-sm text-slate-500">
-            Sign in to continue your journey.
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-indigo-500"
+              />
+
+              <label
+                htmlFor="password"
+                className="mt-3 text-sm font-medium text-slate-200"
+              >
+                Password
+              </label>
+
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-indigo-500"
+              />
+
+              <button
+                type="submit"
+                className="mt-3 w-full rounded-lg bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-500"
+              >
+                Login
+              </button>
+            </div>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-slate-400">
+            Don't have an account?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/register")}
+              className="font-semibold text-indigo-400 hover:text-indigo-300"
+            >
+              Register
+            </button>
           </p>
         </div>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleLogin();
-          }}
-          className="space-y-5"
-        >
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-2 block text-sm font-medium text-slate-700"
-            >
-              Email Address
-            </label>
-
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-2 block text-sm font-medium text-slate-700"
-            >
-              Password
-            </label>
-
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-          >
-            Sign In
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-slate-600">
-          Don't have an account?{" "}
-          <button
-            type="button"
-            onClick={() => navigate("/register")}
-            className="font-semibold text-blue-600 hover:text-blue-700"
-          >
-            Register
-          </button>
-        </p>
       </div>
-    </div>
+    </section>
   );
 };
 
