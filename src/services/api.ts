@@ -2,10 +2,10 @@ import axios, { AxiosError } from "axios";
 import { getNewAccessToken } from "./authService";
 
 const api = axios.create({
-  baseURL: "http://localhost:5001/api/v1",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-const PUBLIC_APIS = ["/auth/register", "/auth/login", "/auth/access-token"];
+const PUBLIC_APIS = ["/auth/register", "/auth/login"];
 
 api.interceptors.request.use((config) => {
   const accessToken = localStorage.getItem("ACCESS_TOKEN");
