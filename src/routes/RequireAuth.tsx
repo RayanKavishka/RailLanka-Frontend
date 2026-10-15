@@ -10,7 +10,9 @@ interface RequireAuthProps {
 }
 
 const RequireAuth = ({ children, roles }: RequireAuthProps) => {
-  const { user, isLoading } = useAuthContext();
+  const { user, isLoading, activeRole } = useAuthContext();
+
+  console.log({ user, isLoading, activeRole });
 
   if (isLoading) {
     return <Loading />;
@@ -20,7 +22,7 @@ const RequireAuth = ({ children, roles }: RequireAuthProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (roles && !roles.some((role) => user.roles.includes(role))) {
+  if (roles && !roles.includes(activeRole)) {
     return <AccessDenied />;
   }
 

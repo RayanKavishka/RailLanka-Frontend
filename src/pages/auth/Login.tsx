@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { login } from "../../services/authService";
+import { getMyDetails, login } from "../../services/authService";
 import axios from "axios";
+import useAuthContext from "../../hooks/useAuth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
+
+  const { setActiveRole } = useAuthContext();
 
   const handleLogin = async () => {
     try {
@@ -25,16 +28,20 @@ const Login = () => {
 
       localStorage.setItem("ACCESS_TOKEN", accessToken);
       localStorage.setItem("REFRESH_TOKEN", refreshToken);
+      
+      let path = "/login";
 
-    if (userDetails.roles.includes("ADMIN")) {
-        navigate("/admin", { replace: true });
+      if (userDetails.roles.includes("ADMIN")) {
+        path = "/admin";
 
-    } else if (userDetails.roles.includes("PASSENGER")) {
-        navigate("/passenger", { replace: true });
-        
-    } else if (userDetails.roles.includes("TICKET_INSPECTOR")) {
-        navigate("/inspector", { replace: true });
-    }
+      } else if (userDetails.roles.includes("PASSENGER")) {
+        path = "/inspector";
+          
+      } else if (userDetails.roles.includes("TICKET_INSPECTOR")) {
+        path = "/passenger";
+      }
+
+      window.location.replace(path);
 
       toast.success("Login successful.");
 
