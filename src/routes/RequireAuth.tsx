@@ -12,8 +12,6 @@ interface RequireAuthProps {
 const RequireAuth = ({ children, roles }: RequireAuthProps) => {
   const { user, isLoading, activeRole } = useAuthContext();
 
-  console.log({ user, isLoading, activeRole });
-
   if (isLoading) {
     return <Loading />;
   }

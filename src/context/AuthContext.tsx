@@ -30,7 +30,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     useEffect(() => {
         const accessToken = localStorage.getItem("ACCESS_TOKEN");
         if (accessToken) {
-            setIsLoading(true);
 
             getMyDetails()
                 .then((res) => {

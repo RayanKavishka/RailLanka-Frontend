@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { login } from "../../services/authService";
 import axios from "axios";
+import { Check, Loader2, Lock, Mail } from "lucide-react";
+import { login } from "../../services/authService";
+import AuthLayout, { AuthField } from "../../layouts/AuthLayout";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+    setLoading(true);
+
     try {
       const res = await login(email, password);
       const userDetails = res.data.body;
@@ -32,102 +37,118 @@ const Login = () => {
         path = "/admin";
 
       } else if (userDetails.roles.includes("PASSENGER")) {
-        path = "/inspector";
+        path = "/passenger";
         
       } else if (userDetails.roles.includes("TICKET_INSPECTOR")) {
-        path = "/passenger";
+        path = "/inspector";
       }
 
       window.location.replace(path);
 
       toast.success("Login successful.");
+
     } catch (error) {
       console.log(error);
 
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.message;
-
         toast.error(message ?? "Login failed. Please try again.");
+
       } else {
         toast.error("An unexpected error occurred.");
       }
+
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <section className="grid min-h-screen grid-cols-1 md:grid-cols-2">
-      {/* Left side: hidden on mobile, visible on md and larger */}
-      <div className="hidden min-h-screen w-full bg-slate-950 md:block">
-        {/* Add your branding or image here */}
-      </div>
+    <AuthLayout
+      panelTitle="Welcome back"
+      panelText="Sign in to manage your journeys, view e-tickets and book your next trip."
+      title="Sign in"
+      subtitle="Enter your details to access your account."
+    >
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleLogin();
+        }} 
+        className="flex flex-col gap-[22px]"
+      >
+        <AuthField
+          id="email"
+          type="email"
+          label="Email address"
+          icon={Mail}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          autoComplete="email"
+          required
+        />
 
-      {/* Right side: login form */}
-      <div className="flex min-h-screen w-full items-center justify-center bg-slate-900 px-6 py-8">
-        <div className="w-full max-w-md">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleLogin();
-            }}
-            className="space-y-5"
+        <AuthField
+          id="password"
+          type="password"
+          label="Password"
+          icon={Lock}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password"
+          autoComplete="current-password"
+          required
+        />
+
+        <div className="flex items-center justify-between">
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-[#0D1B2A]">
+            <span className="relative flex h-5 w-5 items-center justify-center">
+              <input
+                type="checkbox"
+                name="remember"
+                defaultChecked
+                className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-[1.5px] border-[#E2E7EF] bg-white checked:border-[#006D77] checked:bg-[#006D77] focus-visible:ring-4 focus-visible:ring-[#006D77]/20"
+              />
+              <Check
+                className="pointer-events-none absolute h-[13px] w-[13px] text-white opacity-0 peer-checked:opacity-100"
+                strokeWidth={3}
+                aria-hidden="true"
+              />
+            </span>
+            Remember me
+          </label>
+
+          <button
+            type="button"
+            onClick={() => toast.info("Password reset isn't available yet.")}
+            className="text-sm font-bold text-[#006D77] hover:text-[#005A63]"
           >
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="email"
-                className="text-sm font-medium text-slate-200"
-              >
-                Email
-              </label>
-
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-indigo-500"
-              />
-
-              <label
-                htmlFor="password"
-                className="mt-3 text-sm font-medium text-slate-200"
-              >
-                Password
-              </label>
-
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-white outline-none focus:border-indigo-500"
-              />
-
-              <button
-                type="submit"
-                className="mt-3 w-full rounded-lg bg-indigo-600 px-4 py-3 font-semibold text-white transition hover:bg-indigo-500"
-              >
-                Login
-              </button>
-            </div>
-          </form>
-
-          <p className="mt-6 text-center text-sm text-slate-400">
-            Don't have an account?{" "}
-            <button
-              type="button"
-              onClick={() => navigate("/register")}
-              className="font-semibold text-indigo-400 hover:text-indigo-300"
-            >
-              Register
-            </button>
-          </p>
+            Forgot password?
+          </button>
         </div>
-      </div>
-    </section>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-[14px] bg-[#006D77] px-6 py-[17px] text-[15px] font-semibold text-white shadow-[0_8px_20px_rgba(0,109,119,0.3)] transition hover:bg-[#005A63] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#006D77]/30 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading && <Loader2 className="h-[18px] w-[18px] animate-spin" aria-hidden="true" />}
+          {loading ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
+
+      <p className="text-center text-sm font-medium text-[#5B6B7E]">
+        New to RailLanka?{" "}
+        <button
+          type="button"
+          onClick={() => navigate("/register")}
+          className="font-bold text-[#006D77] hover:text-[#005A63]"
+        >
+          Create an account
+        </button>
+      </p>
+    </AuthLayout>
   );
 };
 
