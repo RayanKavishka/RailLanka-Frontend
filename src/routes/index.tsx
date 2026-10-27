@@ -9,6 +9,8 @@ import PassengerDashboard from "../pages/passenger/PassengerDashboard";
 import InspectorLayout from "../layouts/InspectorLayout";
 import InspectorDashboard from "../pages/inspector/InspectorDashboard";
 import RequireAuth from "./RequireAuth";
+import Landing from "../pages/Landing";
+import PublicRoute from "./PublicRoute";
 
 const AppRouter = () => {
     return (
@@ -58,8 +60,11 @@ const AppRouter = () => {
             </Route>
 
             {/* Public Routes */}
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<PublicRoute />}>
+                <Route index element={<Landing />}/>
+                <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<Login />} />
+            </Route>
         </Routes>
         </BrowserRouter>
   );
