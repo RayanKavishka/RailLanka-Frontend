@@ -24,6 +24,8 @@ export interface PassengerDashboardProps {
   loginTo?: string;
   /** Router path used by the footer "Register" link and the "Create account" banner. */
   registerTo?: string;
+  /** Full name of the signed-in passenger, shown next to the profile avatar. */
+  userName?: string;
 }
 
 interface Route {
@@ -409,6 +411,24 @@ const scrollBehavior = (): ScrollBehavior =>
 /*  Small building blocks (kept outside the page so inputs never remount)     */
 /* -------------------------------------------------------------------------- */
 
+/** "Nimali Perera" -> "NP", "Nimali" -> "N" */
+const getInitials = (name: string) => {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return "?";
+  const first = words[0][0];
+  const last = words.length > 1 ? words[words.length - 1][0] : "";
+  return (first + last).toUpperCase();
+};
+
+const Avatar = ({ name, className = "" }: { name: string; className?: string }) => (
+  <span
+    aria-hidden="true"
+    className={`grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full bg-[#006D77] text-base font-bold text-white ${className}`}
+  >
+    {getInitials(name)}
+  </span>
+);
+
 const Brand = () => (
   <Link
     to={PATHS.home}
@@ -454,6 +474,7 @@ const PassengerDashboard = ({
   onSearch,
   loginTo = "/login",
   registerTo = "/register",
+  userName = "Nimali Perera",
 }: PassengerDashboardProps) => {
   const today = toISODate(new Date());
   const stationListId = useId();
@@ -573,6 +594,30 @@ const PassengerDashboard = ({
               ))}
             </ul>
 
+            {/* Tablet: avatar only. Laptop: name + avatar. (Mobile: see burger menu) */}
+            <NavLink
+              to={PATHS.profile}
+              aria-label={`${userName} – my profile`}
+              title={userName}
+              className={`hidden shrink-0 items-center gap-3.5 rounded-full transition-opacity hover:opacity-90 md:flex ${FOCUS}`}
+            >
+              {({ isActive }) => (
+                <>
+                  <span className="hidden max-w-[180px] truncate text-[15px] font-semibold text-white lg:block">
+                    {userName}
+                  </span>
+                  <Avatar
+                    name={userName}
+                    className={
+                      isActive
+                        ? "ring-2 ring-[#7FD6DC] ring-offset-2 ring-offset-[#0D1B2A]"
+                        : ""
+                    }
+                  />
+                </>
+              )}
+            </NavLink>
+
             {/* Mobile: burger */}
             <button
               type="button"
@@ -591,6 +636,32 @@ const PassengerDashboard = ({
                 className="absolute inset-x-0 top-full z-30 mt-1 md:hidden"
               >
                 <ul className="flex flex-col gap-1 rounded-2xl border border-white/15 bg-[#0D1B2A] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.45)]">
+                  <li>
+                    <NavLink
+                      to={PATHS.profile}
+                      onClick={() => setMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3.5 rounded-xl p-2 transition-colors hover:bg-white/10 ${FOCUS} ${
+                          isActive ? "bg-white/10" : ""
+                        }`
+                      }
+                    >
+                      <Avatar name={userName} />
+                      <span className="flex min-w-0 flex-col">
+                        <span className="truncate text-[15px] font-semibold text-white">
+                          {userName}
+                        </span>
+                        <span className="text-xs text-white/60">
+                          View profile
+                        </span>
+                      </span>
+                    </NavLink>
+                  </li>
+                  <li
+                    role="separator"
+                    aria-hidden="true"
+                    className="mx-2 my-1 h-px bg-white/[0.12]"
+                  />
                   {NAV_LINKS.map(({ label, to: path, end }) => (
                     <li key={label}>
                       <NavLink
@@ -866,17 +937,17 @@ const PassengerDashboard = ({
                   Ready for your next journey?
                 </h2>
                 <p className="mt-3 max-w-[640px] text-base leading-6 text-white/80 sm:text-[17px]">
-                  Create a free passenger account and book your first e-ticket
-                  today.
+                  Pick your route and book your next e-ticket in minutes.
                 </p>
               </div>
-              <Link
-                to={registerTo}
-                className={`${BTN} h-[55px] w-full shrink-0 rounded-2xl bg-white px-7 text-base font-bold text-[#0D1B2A] sm:w-auto`}
+              <button
+                type="button"
+                onClick={focusSearch}
+                className={`${BTN} h-[55px] w-full shrink-0 cursor-pointer rounded-2xl bg-white px-7 text-base font-bold text-[#0D1B2A] sm:w-auto`}
               >
-                Create account
-                <ArrowRightIcon size={20} />
-              </Link>
+                <SearchIcon size={20} />
+                Search Journeys
+              </button>
             </div>
           </div>
         </section>
