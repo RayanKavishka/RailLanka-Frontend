@@ -155,8 +155,8 @@ const AdminLayout = () => {
   const { user } = useAuthContext();
 
   const CURRENT_ADMIN = {
-    name: user?.fullName as string,
-    email: user?.email as string,
+    name: user?.fullName ?? "Admin",
+    email: user?.email ?? "",
   };
 
   const pageTitle =
