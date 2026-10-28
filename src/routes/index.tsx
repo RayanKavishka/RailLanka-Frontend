@@ -27,10 +27,12 @@ const AppRouter = () => {
                 </RequireAuth>
             }>
                 <Route index element={<AdminDashboard />} />
-                <Route path="trains" element />
                 <Route path="stations" element />
-                <Route path="stops" element />
+                <Route path="payments" element />
                 <Route path="routes" element />
+                <Route path="passengers" element />
+                <Route path="inspectors" element />
+                <Route path="profile" element />
             </Route>
 
 
@@ -62,13 +64,14 @@ const AppRouter = () => {
             {/* Public Routes */}
             <Route path="/" element={<PublicRoute />}>
                 <Route index element={<Landing />}/>
-                <Route path="/register" element={<Register />} />
-                <Route path="/login" element={<Login />} />
+                <Route path="register" element={<Register />} />
+                <Route path="login" element={<Login />} />
             </Route>
         </Routes>
         </BrowserRouter>
   );
 }
+
 
 
 export default AppRouter;
