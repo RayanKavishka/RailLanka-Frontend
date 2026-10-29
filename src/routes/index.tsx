@@ -11,6 +11,7 @@ import InspectorDashboard from "../pages/inspector/InspectorDashboard";
 import RequireAuth from "./RequireAuth";
 import Landing from "../pages/Landing";
 import PublicRoute from "./PublicRoute";
+import RoutePage from "../pages/admin/RoutePage";
 
 const AppRouter = () => {
     return (
@@ -28,8 +29,8 @@ const AppRouter = () => {
             }>
                 <Route index element={<AdminDashboard />} />
                 <Route path="stations" element />
+                <Route path="routes" element={<RoutePage />} />
                 <Route path="payments" element />
-                <Route path="routes" element />
                 <Route path="passengers" element />
                 <Route path="inspectors" element />
                 <Route path="profile" element />
