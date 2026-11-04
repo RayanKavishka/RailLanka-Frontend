@@ -1,3 +1,4 @@
+import type { searchedProps } from "../pages/passenger/SearchedRoutesPage";
 import api from "./api";
 
 
@@ -72,6 +73,18 @@ export const getAllRoutes = async () => {
 
 export const getAllStations = async () => {
     const res = await api.get("/stations");
+
+    return res;
+}
+
+export const getFilterdRoutesByJourney = async ({ startStationId, destinationStationId, journeyDate }: searchedProps) => {
+    const res = await api.get("/routes/filter-routes", {
+        params: {
+            startStationId,
+            destinationStationId,
+            journeyDate
+        }
+    });
 
     return res;
 }

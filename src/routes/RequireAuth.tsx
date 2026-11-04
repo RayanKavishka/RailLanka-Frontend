@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import useAuthContext from "../hooks/useAuth";
 import Loading from "../components/ui/Loading";
 import { Navigate } from "react-router-dom";
-import AccessDenied from "../components/ui/AccessDenied";
+import NotFound from "../pages/NotFound";
 
 interface RequireAuthProps {
   children: ReactNode;
@@ -21,7 +21,7 @@ const RequireAuth = ({ children, roles }: RequireAuthProps) => {
   }
 
   if (roles && !roles.includes(activeRole)) {
-    return <AccessDenied />;
+    return <NotFound />;
   }
 
   return <>{children}</>;

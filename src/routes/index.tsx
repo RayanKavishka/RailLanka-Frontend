@@ -12,10 +12,13 @@ import RequireAuth from "./RequireAuth";
 import Landing from "../pages/Landing";
 import PublicRoute from "./PublicRoute";
 import RoutePage from "../pages/admin/RoutePage";
+import SearchedRoutesPage from "../pages/passenger/SearchedRoutesPage";
+import ScrollToTop from "../components/ScrollToTop";
 
 const AppRouter = () => {
     return (
         <BrowserRouter>
+        <ScrollToTop />
         <Toaster position="top-right" richColors />
 
         <Routes>
@@ -46,8 +49,7 @@ const AppRouter = () => {
                 <Route index element={<PassengerDashboard />} />
                 <Route path="profile" element />
                 <Route path="tickets" element />
-                <Route path="trains" element />
-                <Route path="routes" element />
+                <Route path="searched-routes" element={<SearchedRoutesPage />} />
             </Route>
 
 

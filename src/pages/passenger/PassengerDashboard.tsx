@@ -1,18 +1,17 @@
 import {
   useEffect,
-  useId,
   useRef,
   useState,
   type FormEvent,
   type ReactNode,
 } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import TrainIllustration from "../../components/auth/TrainIllustration";
+import { getAllStations } from "../../services/routeService";
 
 export interface SearchParams {
   from: string;
   to: string;
-  /** ISO date, yyyy-mm-dd */
   date: string;
   passengers: number;
 }
@@ -20,12 +19,6 @@ export interface SearchParams {
 export interface PassengerDashboardProps {
   /** Called when the search form is submitted with valid values. */
   onSearch?: (params: SearchParams) => void;
-  /** Router path used by the footer "Login" link. */
-  loginTo?: string;
-  /** Router path used by the footer "Register" link and the "Create account" banner. */
-  registerTo?: string;
-  /** Full name of the signed-in passenger, shown next to the profile avatar. */
-  userName?: string;
 }
 
 interface Route {
@@ -43,18 +36,6 @@ interface Route {
   gradient: string;
 }
 
-interface FooterLink {
-  label: string;
-  /** Router path (or mailto:/tel: URL). Omit for plain text. */
-  to?: string;
-}
-
-interface FooterColumn {
-  title: string;
-  className?: string;
-  links: FooterLink[];
-}
-
 interface IconProps {
   size?: number;
   className?: string;
@@ -65,15 +46,8 @@ interface IconProps {
 /* -------------------------------------------------------------------------- */
 
 const PATHS = {
-  home: "/dashboard",
-  search: "/search",
   tickets: "/tickets",
-  history: "/history",
-  profile: "/profile",
-  help: "/help",
   routes: "/routes",
-  privacy: "/privacy",
-  terms: "/terms",
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -208,21 +182,6 @@ const ClockIcon = (p: IconProps) => (
   </Icon>
 );
 
-const MenuIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M4 6h16" />
-    <path d="M4 12h16" />
-    <path d="M4 18h16" />
-  </Icon>
-);
-
-const CloseIcon = (p: IconProps) => (
-  <Icon {...p}>
-    <path d="M18 6 6 18" />
-    <path d="m6 6 12 12" />
-  </Icon>
-);
-
 /* -------------------------------------------------------------------------- */
 /*  Shared class names                                                        */
 /* -------------------------------------------------------------------------- */
@@ -245,43 +204,17 @@ const FIELD_TEXT = "w-full text-[17px] font-bold leading-6 text-[#0D1B2A]";
 
 const INPUT = `${FIELD_TEXT} appearance-none border-0 bg-transparent p-0 outline-none placeholder:font-medium placeholder:text-[#9AA7B8]`;
 
-const FOOTER_LINK =
-  "break-words text-sm leading-5 text-white/[0.65] sm:whitespace-nowrap";
+/** Greyed-out look for a select that still shows its "Select ..." placeholder. */
+const SELECT_PLACEHOLDER = "!font-medium !text-[#9AA7B8]";
 
 /* -------------------------------------------------------------------------- */
 /*  Content                                                                   */
 /* -------------------------------------------------------------------------- */
 
-const NAV_LINKS = [
-  { label: "Home", to: PATHS.home, end: true },
-  { label: "Search Journeys", to: PATHS.search, end: false },
-  { label: "My Tickets", to: PATHS.tickets, end: false },
-  { label: "Booking History", to: PATHS.history, end: false },
-];
-
 const TRUST_ITEMS = [
   { icon: QrIcon, label: "QR e-tickets" },
   { icon: ShieldIcon, label: "Secure payment" },
   { icon: MailIcon, label: "Email confirmation" },
-];
-
-const STATIONS = [
-  "Colombo Fort",
-  "Maradana",
-  "Mount Lavinia",
-  "Bentota",
-  "Hikkaduwa",
-  "Galle",
-  "Matara",
-  "Peradeniya",
-  "Kandy",
-  "Nanu Oya",
-  "Ella",
-  "Badulla",
-  "Anuradhapura",
-  "Vavuniya",
-  "Jaffna",
-  "Batticaloa",
 ];
 
 const ROUTES: Route[] = [
@@ -345,39 +278,6 @@ const FEATURES = [
   },
 ];
 
-const getFooterColumns = (
-  loginTo: string,
-  registerTo: string,
-): FooterColumn[] => [
-  {
-    title: "Quick links",
-    links: [
-      { label: "Home", to: PATHS.home },
-      { label: "Search Journeys", to: PATHS.search },
-      { label: "My Tickets", to: PATHS.tickets },
-      { label: "Booking History", to: PATHS.history },
-    ],
-  },
-  {
-    title: "Account",
-    links: [
-      { label: "Login", to: loginTo },
-      { label: "Register", to: registerTo },
-      { label: "My Profile", to: PATHS.profile },
-      { label: "Help centre", to: PATHS.help },
-    ],
-  },
-  {
-    title: "Contact",
-    className: "col-span-2 sm:col-span-1",
-    links: [
-      { label: "support@raillanka.lk", to: "mailto:support@raillanka.lk" },
-      { label: "+94 11 234 5678", to: "tel:+94112345678" },
-      { label: "Colombo Fort, Sri Lanka" },
-    ],
-  },
-];
-
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
 /* -------------------------------------------------------------------------- */
@@ -411,39 +311,6 @@ const scrollBehavior = (): ScrollBehavior =>
 /*  Small building blocks (kept outside the page so inputs never remount)     */
 /* -------------------------------------------------------------------------- */
 
-/** "Nimali Perera" -> "NP", "Nimali" -> "N" */
-const getInitials = (name: string) => {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (!words.length) return "?";
-  const first = words[0][0];
-  const last = words.length > 1 ? words[words.length - 1][0] : "";
-  return (first + last).toUpperCase();
-};
-
-const Avatar = ({ name, className = "" }: { name: string; className?: string }) => (
-  <span
-    aria-hidden="true"
-    className={`grid h-[42px] w-[42px] shrink-0 place-items-center rounded-full bg-[#006D77] text-base font-bold text-white ${className}`}
-  >
-    {getInitials(name)}
-  </span>
-);
-
-const Brand = () => (
-  <Link
-    to={PATHS.home}
-    aria-label="RailLanka home"
-    className={`inline-flex items-center gap-3 ${FOCUS}`}
-  >
-    <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#006D77] text-white">
-      <TrainIcon size={22} />
-    </span>
-    <span className="text-xl font-extrabold tracking-[-0.01em] text-white sm:text-2xl">
-      RailLanka
-    </span>
-  </Link>
-);
-
 const Field = ({
   icon,
   label,
@@ -466,78 +333,60 @@ const Field = ({
   </label>
 );
 
-/* -------------------------------------------------------------------------- */
-/*  Component                                                                 */
-/* -------------------------------------------------------------------------- */
+interface IStation {
+  _id: string;
+  stationName: string;
+  stationCode: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  },
+  address: string;
+  isActive: boolean;
+}
 
-const PassengerDashboard = ({
-  onSearch,
-  loginTo = "/login",
-  registerTo = "/register",
-  userName = "Nimali Perera",
-}: PassengerDashboardProps) => {
+const PassengerDashboard = ({ onSearch }: PassengerDashboardProps) => {
+
   const today = toISODate(new Date());
-  const stationListId = useId();
-  const menuId = useId();
   const searchRef = useRef<HTMLFormElement>(null);
-  const navRef = useRef<HTMLElement>(null);
-  const { pathname } = useLocation();
-  const footerColumns = getFooterColumns(loginTo, registerTo);
 
-  const [from, setFrom] = useState("Colombo Fort");
-  const [to, setTo] = useState("Kandy");
   const [date, setDate] = useState(today);
-  const [passengers, setPassengers] = useState(2);
   const [error, setError] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
 
-  /* Close the mobile menu on navigation, Escape and outside taps. */
+  // ======================================     My Implementation    =====================================================
+  const navigate = useNavigate();
+
+  // Selected station ids ("" = nothing selected yet)
+  const [startStationId, setStartStationId] = useState("");
+  const [destinationStationId, setDestinationStationId] = useState("");
+
+  const [stations, setStations] = useState<IStation[]>([]);
+
   useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+    const getStations = async () => {
+      try {
+        const res = await getAllStations();
 
-  useEffect(() => {
-    if (!menuOpen) return;
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
-    };
-    const onPointer = (e: PointerEvent) => {
-      if (navRef.current && !navRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
+        setStations(res.data.body);
+      } catch (err) {
+        console.error("Failed to load stations", err);
+        setError("Could not load stations. Please try again.");
       }
-    };
+    }
 
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("pointerdown", onPointer);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("pointerdown", onPointer);
-    };
-  }, [menuOpen]);
+    getStations();
+    
+  }, []);
 
-  const swapStations = () => {
-    setFrom(to);
-    setTo(from);
-  };
 
-  const focusSearch = () => {
-    const form = searchRef.current;
-    if (!form) return;
-    form.scrollIntoView({ behavior: scrollBehavior(), block: "center" });
-    form.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true });
-  };
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSearchJourney = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const start = from.trim();
-    const end = to.trim();
 
-    if (!start || !end) {
+    if (!startStationId || !destinationStationId) {
       setError("Choose both a departure and an arrival station.");
       return;
     }
-    if (start.toLowerCase() === end.toLowerCase()) {
+    if (startStationId === destinationStationId) {
       setError("Departure and arrival stations must be different.");
       return;
     }
@@ -547,12 +396,42 @@ const PassengerDashboard = ({
     }
 
     setError("");
-    onSearch?.({ from: start, to: end, date, passengers });
+
+    const params = new URLSearchParams({
+      startStationId,
+      destinationStationId,
+      journeyDate: date,
+    });
+
+    navigate(`/passenger/searched-routes?${params.toString()}`);
+    
+  };
+
+  // ======================================     My Implementation    =====================================================
+
+  const swapStations = () => {
+    setStartStationId(destinationStationId);
+    setDestinationStationId(startStationId);
+  };
+
+  const focusSearch = () => {
+    const form = searchRef.current;
+    if (!form) return;
+    form.scrollIntoView({ behavior: scrollBehavior(), block: "center" });
+    form.querySelector<HTMLSelectElement>("select")?.focus({ preventScroll: true });
   };
 
   const pickRoute = (route: Route) => {
-    setFrom(route.from);
-    setTo(route.to);
+    // Popular-route cards only know station names, so find the matching ids
+    const start = stations.find(
+      (s) => s.stationName.toLowerCase() === route.from.toLowerCase()
+    );
+    const destination = stations.find(
+      (s) => s.stationName.toLowerCase() === route.to.toLowerCase()
+    );
+
+    setStartStationId(start?._id ?? "");
+    setDestinationStationId(destination?._id ?? "");
     setError("");
     searchRef.current?.scrollIntoView({
       behavior: scrollBehavior(),
@@ -566,125 +445,8 @@ const PassengerDashboard = ({
       className="bg-white text-[#0D1B2A] antialiased [font-family:'Plus_Jakarta_Sans',Inter,system-ui,-apple-system,'Segoe_UI',Roboto,sans-serif]"
     >
       {/* ------------------------------ Hero ------------------------------ */}
-      <header className="overflow-hidden bg-[linear-gradient(180deg,#0D1B2A_0%,#13264F_60%,#0B132B_100%)] pb-12 text-white sm:pb-16">
+      <section className="overflow-hidden bg-[linear-gradient(180deg,#0D1B2A_0%,#13264F_60%,#0B132B_100%)] pb-12 pt-4 text-white sm:pb-16 sm:pt-6">
         <div className={CONTAINER}>
-          <nav
-            ref={navRef}
-            aria-label="Primary"
-            className="relative flex h-[72px] items-center justify-between gap-4 md:h-[88px]"
-          >
-            <Brand />
-
-            {/* Tablet / laptop: inline links */}
-            <ul className="hidden items-center gap-x-6 text-[15px] font-medium text-white/75 md:flex lg:gap-x-[42px]">
-              {NAV_LINKS.map(({ label, to: path, end }) => (
-                <li key={label}>
-                  <NavLink
-                    to={path}
-                    end={end}
-                    className={({ isActive }) =>
-                      `rounded transition-colors hover:text-white ${FOCUS} ${
-                        isActive ? "font-semibold text-white" : ""
-                      }`
-                    }
-                  >
-                    {label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-
-            {/* Tablet: avatar only. Laptop: name + avatar. (Mobile: see burger menu) */}
-            <NavLink
-              to={PATHS.profile}
-              aria-label={`${userName} – my profile`}
-              title={userName}
-              className={`hidden shrink-0 items-center gap-3.5 rounded-full transition-opacity hover:opacity-90 md:flex ${FOCUS}`}
-            >
-              {({ isActive }) => (
-                <>
-                  <span className="hidden max-w-[180px] truncate text-[15px] font-semibold text-white lg:block">
-                    {userName}
-                  </span>
-                  <Avatar
-                    name={userName}
-                    className={
-                      isActive
-                        ? "ring-2 ring-[#7FD6DC] ring-offset-2 ring-offset-[#0D1B2A]"
-                        : ""
-                    }
-                  />
-                </>
-              )}
-            </NavLink>
-
-            {/* Mobile: burger */}
-            <button
-              type="button"
-              onClick={() => setMenuOpen((o) => !o)}
-              aria-expanded={menuOpen}
-              aria-controls={menuId}
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-              className={`grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-xl border border-white/25 text-white transition-colors hover:bg-white/10 md:hidden ${FOCUS}`}
-            >
-              {menuOpen ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
-            </button>
-
-            {menuOpen && (
-              <div
-                id={menuId}
-                className="absolute inset-x-0 top-full z-30 mt-1 md:hidden"
-              >
-                <ul className="flex flex-col gap-1 rounded-2xl border border-white/15 bg-[#0D1B2A] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.45)]">
-                  <li>
-                    <NavLink
-                      to={PATHS.profile}
-                      onClick={() => setMenuOpen(false)}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3.5 rounded-xl p-2 transition-colors hover:bg-white/10 ${FOCUS} ${
-                          isActive ? "bg-white/10" : ""
-                        }`
-                      }
-                    >
-                      <Avatar name={userName} />
-                      <span className="flex min-w-0 flex-col">
-                        <span className="truncate text-[15px] font-semibold text-white">
-                          {userName}
-                        </span>
-                        <span className="text-xs text-white/60">
-                          View profile
-                        </span>
-                      </span>
-                    </NavLink>
-                  </li>
-                  <li
-                    role="separator"
-                    aria-hidden="true"
-                    className="mx-2 my-1 h-px bg-white/[0.12]"
-                  />
-                  {NAV_LINKS.map(({ label, to: path, end }) => (
-                    <li key={label}>
-                      <NavLink
-                        to={path}
-                        end={end}
-                        onClick={() => setMenuOpen(false)}
-                        className={({ isActive }) =>
-                          `block rounded-xl px-4 py-3 text-base transition-colors hover:bg-white/10 hover:text-white ${FOCUS} ${
-                            isActive
-                              ? "bg-white/10 font-semibold text-white"
-                              : "font-medium text-white/75"
-                          }`
-                        }
-                      >
-                        {label}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </nav>
-
           <div className="grid items-center gap-8 pt-4 sm:gap-10 sm:pt-6 md:grid-cols-2 md:gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:gap-10">
             <div>
               <span className="inline-flex min-h-[34px] items-center gap-2.5 rounded-full border border-white/[0.22] bg-white/10 px-4 py-1.5 text-[13px] font-medium leading-[18px] text-white/90 sm:text-sm">
@@ -736,21 +498,29 @@ const PassengerDashboard = ({
           <form
             id="search"
             ref={searchRef}
-            onSubmit={handleSubmit}
+            onSubmit={handleSearchJourney}
             noValidate
-            className="mt-8 flex scroll-mt-6 flex-col gap-4 rounded-3xl bg-white p-4 text-[#0D1B2A] shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:mt-10 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-5 sm:rounded-[28px] sm:p-6 lg:flex lg:flex-row lg:items-center lg:gap-5 lg:py-5 lg:pl-8 lg:pr-3"
+            className="mt-8 flex scroll-mt-24 flex-col gap-4 rounded-3xl bg-white p-4 text-[#0D1B2A] shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:mt-10 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-5 sm:rounded-[28px] sm:p-6 lg:flex lg:flex-row lg:items-center lg:gap-5 lg:py-5 lg:pl-8 lg:pr-3"
           >
             {/* From · swap · To  (stacked on mobile, side by side on tablet, inline on laptop) */}
             <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row sm:items-center sm:gap-4 lg:contents">
               <Field icon={<PinIcon size={22} />} label="From">
-                <input
-                  className={INPUT}
-                  list={stationListId}
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                  placeholder="Departure station"
-                  autoComplete="off"
-                />
+                <select
+                  className={`${INPUT} cursor-pointer ${
+                    startStationId ? "" : SELECT_PLACEHOLDER
+                  }`}
+                  value={startStationId}
+                  onChange={(e) => setStartStationId(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select departure station
+                  </option>
+                  {stations.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.stationName}
+                    </option>
+                  ))}
+                </select>
               </Field>
 
               <button
@@ -763,14 +533,22 @@ const PassengerDashboard = ({
               </button>
 
               <Field icon={<PinIcon size={22} />} label="To">
-                <input
-                  className={INPUT}
-                  list={stationListId}
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                  placeholder="Arrival station"
-                  autoComplete="off"
-                />
+                <select
+                  className={`${INPUT} cursor-pointer ${
+                    destinationStationId ? "" : SELECT_PLACEHOLDER
+                  }`}
+                  value={destinationStationId}
+                  onChange={(e) => setDestinationStationId(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select arrival station
+                  </option>
+                  {stations.map((s) => (
+                    <option key={s._id} value={s._id}>
+                      {s.stationName}
+                    </option>
+                  ))}
+                </select>
               </Field>
             </div>
 
@@ -798,20 +576,6 @@ const PassengerDashboard = ({
               className="hidden h-11 w-px shrink-0 bg-[#E2E7EF] lg:block"
             />
 
-            <Field icon={<UsersIcon size={22} />} label="Passengers">
-              <select
-                className={`${INPUT} cursor-pointer`}
-                value={passengers}
-                onChange={(e) => setPassengers(Number(e.target.value))}
-              >
-                {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <option key={n} value={n}>
-                    {n} {n === 1 ? "Adult" : "Adults"}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
             <button
               type="submit"
               className={`${BTN} h-[56px] w-full cursor-pointer rounded-[18px] bg-[#006D77] text-base font-bold text-white sm:col-span-2 lg:h-[59px] lg:w-[189px] lg:shrink-0`}
@@ -819,12 +583,6 @@ const PassengerDashboard = ({
               <SearchIcon size={20} />
               Search Journeys
             </button>
-
-            <datalist id={stationListId}>
-              {STATIONS.map((s) => (
-                <option key={s} value={s} />
-              ))}
-            </datalist>
           </form>
 
           {error && (
@@ -833,185 +591,127 @@ const PassengerDashboard = ({
             </p>
           )}
         </div>
-      </header>
+      </section>
 
-      <main>
-        {/* --------------------------- Routes ---------------------------- */}
-        <section id="routes" className="bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
-          <div className={CONTAINER}>
-            <div className="mb-8 flex flex-col items-start gap-4 sm:mb-11 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-              <div>
-                <p className={EYEBROW}>Popular destinations</p>
-                <h2 className={H2}>Where would you like to go?</h2>
-              </div>
-              <Link
-                to={PATHS.routes}
-                className={`inline-flex shrink-0 items-center gap-2 text-base font-semibold text-[#006D77] hover:underline ${FOCUS}`}
-              >
-                View all routes
-                <ArrowRightIcon size={18} />
-              </Link>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
-              {ROUTES.map((route) => (
-                <article
-                  key={route.id}
-                  className="overflow-hidden rounded-3xl bg-white shadow-[0_10px_30px_rgba(13,27,42,0.07)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(13,27,42,0.14)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-                >
-                  <div
-                    className={`relative flex h-[170px] flex-col items-start justify-between px-[22px] pb-[22px] pt-[26px] text-white sm:h-[190px] sm:pb-[26px] sm:pt-[30px] ${route.gradient}`}
-                  >
-                    <span className="rounded-full bg-white/20 px-3.5 text-xs font-semibold leading-[27px]">
-                      {route.tag}
-                    </span>
-                    <TrainIcon
-                      size={40}
-                      className="absolute right-[22px] top-6 opacity-[0.35]"
-                    />
-                    <h3 className="text-[22px] font-extrabold leading-[28px] tracking-[-0.01em] sm:text-2xl sm:leading-[30px] xl:text-[22px] xl:leading-[28px]">
-                      {route.title}
-                    </h3>
-                  </div>
-
-                  <div className="flex h-[81px] items-center justify-between px-[22px]">
-                    <div>
-                      <p className="flex items-center gap-1.5 text-[13px] text-[#5B6B7E]">
-                        <ClockIcon size={15} />
-                        {route.duration}
-                      </p>
-                      <p className="mt-1 text-xl font-extrabold text-[#0D1B2A]">
-                        <span className="mr-0.5 text-[13px] font-medium text-[#5B6B7E]">
-                          from
-                        </span>{" "}
-                        LKR {route.fare}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => pickRoute(route)}
-                      aria-label={`Search journeys from ${route.from} to ${route.to}`}
-                      className={`grid h-[42px] w-[42px] shrink-0 cursor-pointer place-items-center rounded-full bg-[#0D1B2A] text-white transition-colors hover:bg-[#006D77] ${FOCUS}`}
-                    >
-                      <ArrowRightIcon size={20} />
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ---------------------------- Why ------------------------------ */}
-        <section id="why" className="py-16 sm:py-20 lg:py-24">
-          <div className={CONTAINER}>
-            <div className="mb-10 text-center sm:mb-12">
-              <p className={EYEBROW}>Why RailLanka</p>
-              <h2 className={H2}>Everything you need for a smooth ride</h2>
-            </div>
-
-            <div className="grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {FEATURES.map(({ icon: Glyph, title, body }, i) => (
-                <article
-                  key={title}
-                  className={`rounded-3xl bg-[#F4F6FA] p-6 sm:p-8 ${
-                    i === FEATURES.length - 1 ? "md:col-span-2 lg:col-span-1" : ""
-                  }`}
-                >
-                  <span className="grid h-[58px] w-[58px] place-items-center rounded-[18px] bg-[#006D77] text-white">
-                    <Glyph size={28} />
-                  </span>
-                  <h3 className="mt-6 text-xl font-extrabold leading-7 sm:text-[22px]">
-                    {title}
-                  </h3>
-                  <p className="mt-3 text-[15px] leading-6 text-[#5B6B7E]">
-                    {body}
-                  </p>
-                </article>
-              ))}
-            </div>
-
-            <div className="mt-12 flex min-h-[187px] flex-col items-start justify-between gap-6 rounded-3xl bg-[linear-gradient(172deg,#006D77_0%,#0D1B2A_100%)] px-6 py-8 text-white sm:mt-16 sm:gap-8 sm:rounded-[32px] sm:p-10 lg:flex-row lg:items-center lg:px-14 lg:py-0">
-              <div>
-                <h2 className="text-[26px] font-extrabold leading-[34px] tracking-[-0.02em] sm:text-4xl sm:leading-[44px]">
-                  Ready for your next journey?
-                </h2>
-                <p className="mt-3 max-w-[640px] text-base leading-6 text-white/80 sm:text-[17px]">
-                  Pick your route and book your next e-ticket in minutes.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={focusSearch}
-                className={`${BTN} h-[55px] w-full shrink-0 cursor-pointer rounded-2xl bg-white px-7 text-base font-bold text-[#0D1B2A] sm:w-auto`}
-              >
-                <SearchIcon size={20} />
-                Search Journeys
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* ---------------------------- Footer ------------------------------ */}
-      <footer className="bg-[#0B132B] pt-12 text-white sm:pt-16">
+      {/* --------------------------- Routes ---------------------------- */}
+      <section id="routes" className="bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
         <div className={CONTAINER}>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 pb-12 sm:grid-cols-3 lg:grid-cols-[minmax(0,1.4fr)_1fr_1fr_1fr] lg:gap-y-0 xl:grid-cols-[minmax(0,1fr)_293px_264px_158px]">
-            <div className="col-span-full lg:col-span-1">
-              <Brand />
-              <p className="mt-[22px] max-w-[480px] text-[15px] leading-6 text-white/[0.65]">
-                Sri Lanka&apos;s railway e-ticket booking platform. Search, book
-                and travel with a QR ticket.
-              </p>
+          <div className="mb-8 flex flex-col items-start gap-4 sm:mb-11 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+            <div>
+              <p className={EYEBROW}>Popular destinations</p>
+              <h2 className={H2}>Where would you like to go?</h2>
             </div>
+            <Link
+              to={PATHS.routes}
+              className={`inline-flex shrink-0 items-center gap-2 text-base font-semibold text-[#006D77] hover:underline ${FOCUS}`}
+            >
+              View all routes
+              <ArrowRightIcon size={18} />
+            </Link>
+          </div>
 
-            {footerColumns.map((col) => (
-              <nav
-                key={col.title}
-                aria-label={col.title}
-                className={col.className}
+          <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4">
+            {ROUTES.map((route) => (
+              <article
+                key={route.id}
+                className="overflow-hidden rounded-3xl bg-white shadow-[0_10px_30px_rgba(13,27,42,0.07)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(13,27,42,0.14)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
-                <h4 className="mt-1 text-[15px] font-bold leading-[18px]">
-                  {col.title}
-                </h4>
-                <ul className="mt-5 flex flex-col gap-3 leading-5">
-                  {col.links.map(({ label, to: path }) => (
-                    <li key={label}>
-                      {path ? (
-                        <Link
-                          to={path}
-                          className={`${FOOTER_LINK} hover:text-white`}
-                        >
-                          {label}
-                        </Link>
-                      ) : (
-                        <span className={FOOTER_LINK}>{label}</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </nav>
+                <div
+                  className={`relative flex h-[170px] flex-col items-start justify-between px-[22px] pb-[22px] pt-[26px] text-white sm:h-[190px] sm:pb-[26px] sm:pt-[30px] ${route.gradient}`}
+                >
+                  <span className="rounded-full bg-white/20 px-3.5 text-xs font-semibold leading-[27px]">
+                    {route.tag}
+                  </span>
+                  <TrainIcon
+                    size={40}
+                    className="absolute right-[22px] top-6 opacity-[0.35]"
+                  />
+                  <h3 className="text-[22px] font-extrabold leading-[28px] tracking-[-0.01em] sm:text-2xl sm:leading-[30px] xl:text-[22px] xl:leading-[28px]">
+                    {route.title}
+                  </h3>
+                </div>
+
+                <div className="flex h-[81px] items-center justify-between px-[22px]">
+                  <div>
+                    <p className="flex items-center gap-1.5 text-[13px] text-[#5B6B7E]">
+                      <ClockIcon size={15} />
+                      {route.duration}
+                    </p>
+                    <p className="mt-1 text-xl font-extrabold text-[#0D1B2A]">
+                      <span className="mr-0.5 text-[13px] font-medium text-[#5B6B7E]">
+                        from
+                      </span>{" "}
+                      LKR {route.fare}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => pickRoute(route)}
+                    aria-label={`Search journeys from ${route.from} to ${route.to}`}
+                    className={`grid h-[42px] w-[42px] shrink-0 cursor-pointer place-items-center rounded-full bg-[#0D1B2A] text-white transition-colors hover:bg-[#006D77] ${FOCUS}`}
+                  >
+                    <ArrowRightIcon size={20} />
+                  </button>
+                </div>
+              </article>
             ))}
           </div>
         </div>
+      </section>
 
+      {/* ---------------------------- Why ------------------------------ */}
+      <section id="why" className="py-16 sm:py-20 lg:py-24">
         <div className={CONTAINER}>
-          <div className="h-px bg-white/[0.12]" />
-          <div className="flex min-h-[96px] flex-col items-start justify-center gap-4 py-6 text-[13px] text-white/[0.55] sm:flex-row sm:items-center sm:justify-between sm:py-0">
-            <p>© {new Date().getFullYear()} RailLanka. All rights reserved.</p>
-            <div className="flex gap-5">
-              <Link to={PATHS.privacy} className="hover:text-white">
-                Privacy Policy
-              </Link>
-              <Link to={PATHS.terms} className="hover:text-white">
-                Terms of Service
-              </Link>
+          <div className="mb-10 text-center sm:mb-12">
+            <p className={EYEBROW}>Why RailLanka</p>
+            <h2 className={H2}>Everything you need for a smooth ride</h2>
+          </div>
+
+          <div className="grid gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map(({ icon: Glyph, title, body }, i) => (
+              <article
+                key={title}
+                className={`rounded-3xl bg-[#F4F6FA] p-6 sm:p-8 ${
+                  i === FEATURES.length - 1 ? "md:col-span-2 lg:col-span-1" : ""
+                }`}
+              >
+                <span className="grid h-[58px] w-[58px] place-items-center rounded-[18px] bg-[#006D77] text-white">
+                  <Glyph size={28} />
+                </span>
+                <h3 className="mt-6 text-xl font-extrabold leading-7 sm:text-[22px]">
+                  {title}
+                </h3>
+                <p className="mt-3 text-[15px] leading-6 text-[#5B6B7E]">
+                  {body}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-12 flex min-h-[187px] flex-col items-start justify-between gap-6 rounded-3xl bg-[linear-gradient(172deg,#006D77_0%,#0D1B2A_100%)] px-6 py-8 text-white sm:mt-16 sm:gap-8 sm:rounded-[32px] sm:p-10 lg:flex-row lg:items-center lg:px-14 lg:py-0">
+            <div>
+              <h2 className="text-[26px] font-extrabold leading-[34px] tracking-[-0.02em] sm:text-4xl sm:leading-[44px]">
+                Ready for your next journey?
+              </h2>
+              <p className="mt-3 max-w-[640px] text-base leading-6 text-white/80 sm:text-[17px]">
+                Pick your route and book your next e-ticket in minutes.
+              </p>
             </div>
+            <button
+              type="button"
+              onClick={focusSearch}
+              className={`${BTN} h-[55px] w-full shrink-0 cursor-pointer rounded-2xl bg-white px-7 text-base font-bold text-[#0D1B2A] sm:w-auto`}
+            >
+              <SearchIcon size={20} />
+              Search Journeys
+            </button>
           </div>
         </div>
-      </footer>
+      </section>
     </div>
   );
 };
+
+
 
 export default PassengerDashboard;
