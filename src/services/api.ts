@@ -32,7 +32,7 @@ api.interceptors.response.use(
     const originalRequest: any = error.config;
 
     const isPublic = PUBLIC_APIS.some((url) => {
-      originalRequest.url?.includes(url);
+      return originalRequest.url?.includes(url);
     });
 
     if (
