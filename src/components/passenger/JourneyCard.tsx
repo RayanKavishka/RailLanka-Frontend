@@ -11,12 +11,7 @@ export interface JourneyCardProps {
   onSelect: () => void;
 }
 
-/**
- * Layout
- * - Mobile  (< 640px):  everything stacked, full-width button
- * - Tablet  (640-1023): stacked with roomier spacing and larger type
- * - Laptop  (>= 1024):  one row -> route info | timeline | button
- */
+
 const JourneyCard = ({
   routeName,
   routeCode,

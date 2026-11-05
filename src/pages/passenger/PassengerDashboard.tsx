@@ -8,6 +8,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import TrainIllustration from "../../components/auth/TrainIllustration";
 import { getAllStations } from "../../services/routeService";
+import { toast } from "sonner";
 
 export interface SearchParams {
   from: string;
@@ -202,7 +203,7 @@ const H2 =
 
 const FIELD_TEXT = "w-full text-[17px] font-bold leading-6 text-[#0D1B2A]";
 
-const INPUT = `${FIELD_TEXT} appearance-none border-0 bg-transparent p-0 outline-none placeholder:font-medium placeholder:text-[#9AA7B8]`;
+const INPUT = `${FIELD_TEXT} appearance-none truncate border-0 bg-transparent bg-no-repeat p-0 pr-7 outline-none bg-[length:16px_16px] bg-[position:right_center] bg-[url(data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2024%2024%27%20fill=%27none%27%20stroke=%27%235B6B7E%27%20stroke-width=%272.5%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%3E%3Cpath%20d=%27m6%209%206%206%206-6%27/%3E%3C/svg%3E)] placeholder:font-medium placeholder:text-[#9AA7B8]`;
 
 /** Greyed-out look for a select that still shows its "Select ..." placeholder. */
 const SELECT_PLACEHOLDER = "!font-medium !text-[#9AA7B8]";
@@ -320,7 +321,7 @@ const Field = ({
   label: string;
   children: ReactNode;
 }) => (
-  <label className="group flex min-w-0 cursor-text items-center gap-3.5 rounded-2xl border border-[#E2E7EF] p-3 sm:flex-1 sm:basis-0 lg:rounded-none lg:border-0 lg:p-0">
+  <label className="group flex min-w-0 cursor-text items-center gap-3.5 rounded-2xl border border-[#E2E7EF] p-3 sm:flex-1 sm:basis-0 xl:rounded-none xl:border-0 xl:p-0">
     <span className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[14px] bg-[#006D77]/10 text-[#006D77] transition-shadow group-focus-within:shadow-[0_0_0_3px_rgba(0,109,119,0.25)]">
       {icon}
     </span>
@@ -356,7 +357,6 @@ const PassengerDashboard = ({ onSearch }: PassengerDashboardProps) => {
   // ======================================     My Implementation    =====================================================
   const navigate = useNavigate();
 
-  // Selected station ids ("" = nothing selected yet)
   const [startStationId, setStartStationId] = useState("");
   const [destinationStationId, setDestinationStationId] = useState("");
 
@@ -371,6 +371,7 @@ const PassengerDashboard = ({ onSearch }: PassengerDashboardProps) => {
       } catch (err) {
         console.error("Failed to load stations", err);
         setError("Could not load stations. Please try again.");
+        toast.error("Could not load stations. Please try again.");
       }
     }
 
@@ -447,14 +448,14 @@ const PassengerDashboard = ({ onSearch }: PassengerDashboardProps) => {
       {/* ------------------------------ Hero ------------------------------ */}
       <section className="overflow-hidden bg-[linear-gradient(180deg,#0D1B2A_0%,#13264F_60%,#0B132B_100%)] pb-12 pt-4 text-white sm:pb-16 sm:pt-6">
         <div className={CONTAINER}>
-          <div className="grid items-center gap-8 pt-4 sm:gap-10 sm:pt-6 md:grid-cols-2 md:gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:gap-10">
+          <div className="grid items-center gap-8 pt-4 sm:gap-10 sm:pt-6 md:grid-cols-2 md:gap-8 lg:gap-10 xl:grid-cols-[minmax(0,560px)_minmax(0,1fr)]">
             <div>
               <span className="inline-flex min-h-[34px] items-center gap-2.5 rounded-full border border-white/[0.22] bg-white/10 px-4 py-1.5 text-[13px] font-medium leading-[18px] text-white/90 sm:text-sm">
                 <TicketIcon size={16} className="shrink-0 text-[#7FD6DC]" />
                 Official e-ticketing for Sri Lanka Railways
               </span>
 
-              <h1 className="mt-6 text-[40px] font-extrabold leading-[46px] tracking-[-0.025em] sm:mt-[30px] sm:text-[48px] sm:leading-[54px] md:mt-6 md:text-[44px] md:leading-[50px] lg:mt-[30px] lg:text-[72px] lg:leading-[78px]">
+              <h1 className="mt-6 text-[40px] font-extrabold leading-[46px] tracking-[-0.025em] sm:mt-[30px] sm:text-[48px] sm:leading-[54px] md:mt-6 md:text-[44px] md:leading-[50px] lg:mt-[30px] lg:text-[56px] lg:leading-[62px] xl:text-[72px] xl:leading-[78px]">
                 Your Journey
                 <span className="block text-[#7FD6DC]">Starts Here</span>
               </h1>
@@ -500,10 +501,10 @@ const PassengerDashboard = ({ onSearch }: PassengerDashboardProps) => {
             ref={searchRef}
             onSubmit={handleSearchJourney}
             noValidate
-            className="mt-8 flex scroll-mt-24 flex-col gap-4 rounded-3xl bg-white p-4 text-[#0D1B2A] shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:mt-10 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-5 sm:rounded-[28px] sm:p-6 lg:flex lg:flex-row lg:items-center lg:gap-5 lg:py-5 lg:pl-8 lg:pr-3"
+            className="mt-8 flex scroll-mt-24 flex-col gap-4 rounded-3xl bg-white p-4 text-[#0D1B2A] shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:mt-10 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-5 sm:rounded-[28px] sm:p-6 xl:flex xl:flex-row xl:items-center xl:gap-5 xl:py-5 xl:pl-8 xl:pr-3"
           >
             {/* From · swap · To  (stacked on mobile, side by side on tablet, inline on laptop) */}
-            <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row sm:items-center sm:gap-4 lg:contents">
+            <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row sm:items-center sm:gap-4 xl:contents">
               <Field icon={<PinIcon size={22} />} label="From">
                 <select
                   className={`${INPUT} cursor-pointer ${
@@ -554,7 +555,7 @@ const PassengerDashboard = ({ onSearch }: PassengerDashboardProps) => {
 
             <span
               aria-hidden="true"
-              className="hidden h-11 w-px shrink-0 bg-[#E2E7EF] lg:block"
+              className="hidden h-11 w-px shrink-0 bg-[#E2E7EF] xl:block"
             />
 
             <Field icon={<CalendarIcon size={22} />} label="Travel date">
@@ -573,12 +574,12 @@ const PassengerDashboard = ({ onSearch }: PassengerDashboardProps) => {
 
             <span
               aria-hidden="true"
-              className="hidden h-11 w-px shrink-0 bg-[#E2E7EF] lg:block"
+              className="hidden h-11 w-px shrink-0 bg-[#E2E7EF] xl:block"
             />
 
             <button
               type="submit"
-              className={`${BTN} h-[56px] w-full cursor-pointer rounded-[18px] bg-[#006D77] text-base font-bold text-white sm:col-span-2 lg:h-[59px] lg:w-[189px] lg:shrink-0`}
+              className={`${BTN} h-[56px] w-full cursor-pointer rounded-[18px] bg-[#006D77] text-base font-bold text-white sm:h-auto sm:min-h-[56px] sm:self-stretch xl:h-[59px] xl:w-[189px] xl:shrink-0 xl:self-auto`}
             >
               <SearchIcon size={20} />
               Search Journeys
@@ -631,7 +632,7 @@ const PassengerDashboard = ({ onSearch }: PassengerDashboardProps) => {
                   </h3>
                 </div>
 
-                <div className="flex h-[81px] items-center justify-between px-[22px]">
+                <div className="flex min-h-[81px] items-center justify-between gap-3 px-[22px] py-3">
                   <div>
                     <p className="flex items-center gap-1.5 text-[13px] text-[#5B6B7E]">
                       <ClockIcon size={15} />

@@ -6,6 +6,7 @@ import {
   getFilterdRoutesByJourney,
 } from "../../services/routeService";
 import { TrainFront, ArrowRight, CalendarDays } from "lucide-react";
+import { toast } from "sonner";
 
 interface IRoute {
   _id: string;
@@ -108,7 +109,6 @@ const SearchedRoutesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Full station list, used to show station names even when no journeys are found
   const [stations, setStations] = useState<IStation[]>([]);
 
   useEffect(() => {
@@ -149,6 +149,7 @@ const SearchedRoutesPage = () => {
       } catch (err) {
         console.error("Failed to load routes", err);
         setError("Something went wrong while loading journeys.");
+        toast.error("Something went wrong while loading journeys.");
         setRouteStations([]);
       } finally {
         setLoading(false);
@@ -162,10 +163,6 @@ const SearchedRoutesPage = () => {
   if (!startStationId || !destinationStationId || !journeyDate) {
     return <Navigate to="/passenger" replace />;
   }
-
-  const handleSelectJourney = () => {
-    console.log("Journey selected!");
-  };
 
   const formattedDate = new Date(journeyDate).toLocaleDateString("en-GB", {
     weekday: "short",
@@ -199,8 +196,8 @@ const SearchedRoutesPage = () => {
   return (
     <div className="min-h-screen w-full min-w-0 overflow-x-hidden bg-[#F4F6FA]">
       {/* Journey Header */}
-      <section className="bg-gradient-to-r from-[#0D1B2A] to-[#1D367A] px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-9 lg:px-20">
-        <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <section className="bg-gradient-to-r from-[#0D1B2A] to-[#1D367A]">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6 sm:py-8 md:py-9">
           <div className="min-w-0">
             {/* Station names wrap onto a second line on narrow screens */}
             <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xl font-bold leading-tight text-white sm:gap-x-4 sm:text-2xl md:text-3xl lg:text-4xl">
@@ -304,7 +301,22 @@ const SearchedRoutesPage = () => {
                   arrivalTimeOfSelected,
                   routeStation.route.estimatedDurationHours
                 )}
-                onSelect={handleSelectJourney}
+                onSelect={() => {
+                  const params = new URLSearchParams({
+                    routeId: routeStation.route._id,
+                    routeName: routeStation.route.routeName,
+                    routeCode: routeStation.route.routeCode,
+                    departureTime: departureTimeOfSelected === "N/A" ? "" : departureTimeOfSelected,
+                    arrivalTime: arrivalTimeOfSelected === "N/A" ? "" : arrivalTimeOfSelected,
+                    startStation: startStationName,
+                    destinationStation: desStationName,
+                    journeyDate: journeyDate,
+                    startStationId,
+                    destinationStationId,
+                  });
+
+                  navigate(`/passenger/booking?${params.toString()}`);
+                }}
               />
             );
           })}

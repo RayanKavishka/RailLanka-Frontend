@@ -14,6 +14,9 @@ import PublicRoute from "./PublicRoute";
 import RoutePage from "../pages/admin/RoutePage";
 import SearchedRoutesPage from "../pages/passenger/SearchedRoutesPage";
 import ScrollToTop from "../components/ScrollToTop";
+import BookingDetailsPage from "../pages/passenger/BookingDetailsPage";
+import PaymentPage from "../pages/passenger/PaymentPage";
+import TicketConfirmationPage from "../pages/passenger/TicketConfirmationPage";
 
 const AppRouter = () => {
     return (
@@ -50,6 +53,10 @@ const AppRouter = () => {
                 <Route path="profile" element />
                 <Route path="tickets" element />
                 <Route path="searched-routes" element={<SearchedRoutesPage />} />
+                <Route path="booking" element={<BookingDetailsPage />} />
+                <Route path="payment" element={<PaymentPage />}  />
+                <Route path="payment-success" element={<TicketConfirmationPage />} />
+                <Route path="payment-cancel" element={<TicketConfirmationPage cancelled />} />
             </Route>
 
 

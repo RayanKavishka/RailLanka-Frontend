@@ -1,6 +1,7 @@
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import useAuthContext from "../hooks/useAuth";
 
 /* -------------------------------------------------------------------------- */
 /*  App paths                                                                  */
@@ -17,8 +18,6 @@ const PATHS = {
     login: "/login",
     register: "/register",
 } as const;
-
-const USER_NAME = "Nimali Perera";
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                      */
@@ -198,7 +197,10 @@ const PassengerLayout = () => {
     const { pathname } = useLocation();
     const [menuOpen, setMenuOpen] = useState(false);
 
-    /* Close the mobile menu on navigation, Escape and outside taps. */
+
+    const { user } = useAuthContext();
+    const USER_NAME: string = user?.fullName as string;
+
     useEffect(() => {
         setMenuOpen(false);
     }, [pathname]);
