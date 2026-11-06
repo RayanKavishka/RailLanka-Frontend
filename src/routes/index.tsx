@@ -17,6 +17,7 @@ import ScrollToTop from "../components/ScrollToTop";
 import BookingDetailsPage from "../pages/passenger/BookingDetailsPage";
 import PaymentPage from "../pages/passenger/PaymentPage";
 import TicketConfirmationPage from "../pages/passenger/TicketConfirmationPage";
+import StationsPage from "../pages/admin/StationsPage";
 
 const AppRouter = () => {
     return (
@@ -34,7 +35,7 @@ const AppRouter = () => {
                 </RequireAuth>
             }>
                 <Route index element={<AdminDashboard />} />
-                <Route path="stations" element />
+                <Route path="stations" element={<StationsPage />} />
                 <Route path="routes" element={<RoutePage />} />
                 <Route path="payments" element />
                 <Route path="passengers" element />

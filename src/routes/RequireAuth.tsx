@@ -13,7 +13,7 @@ const RequireAuth = ({ children, roles }: RequireAuthProps) => {
   const { user, isLoading, activeRole } = useAuthContext();
 
   if (isLoading) {
-    return <Loading />;
+    return <Loading />  ;
   }
 
   if (!user) {

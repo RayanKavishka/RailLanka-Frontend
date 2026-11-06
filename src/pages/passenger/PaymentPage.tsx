@@ -20,15 +20,6 @@ import {
 } from './BookingShared';
 import type { BookingSession } from './BookingShared';
 
-/**
- * Receives { journey, checkout } from BookingDetailsPage (router state, with a
- * sessionStorage fallback for refreshes), then posts the PayHere form that the
- * backend prepared in journeyService.bookingTickets().
- *
- * No API calls here: PayHere takes over in the browser, calls your
- * /api/v1/payments/notify, and sends the passenger back to BOOKING_ROUTES.success
- * (or BOOKING_ROUTES.cancel).
- */
 const PaymentPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -37,7 +28,7 @@ const PaymentPage = () => {
 
     const session: BookingSession | null = (location.state as BookingSession | null) ?? loadBookingSession();
 
-    /* If the passenger comes back with the browser Back button, unlock the button */
+
     useEffect(() => {
         const onShow = (event: PageTransitionEvent) => {
             if (event.persisted) setRedirecting(false);
