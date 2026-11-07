@@ -53,7 +53,7 @@ const RECENT_PAYMENTS: Payment[] = [
 const QUICK_LINKS = [
   { label: "Manage stations", to: "/admin/stations", hint: "Add or edit stops" },
   { label: "Manage routes", to: "/admin/routes", hint: "Timetables & fares" },
-  { label: "Passengers", to: "/admin/passengers", hint: "Accounts & tickets" },
+  { label: "Admins", to: "/admin/admins", hint: "Admin Panel" },
   { label: "Inspectors", to: "/admin/inspectors", hint: "Staff & access" },
 ];
 

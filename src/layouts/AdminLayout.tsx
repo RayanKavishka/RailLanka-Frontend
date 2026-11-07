@@ -2,10 +2,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import useAuthContext from "../hooks/useAuth";
 
-/* -------------------------------------------------------------------------- */
-/*  Icons (inline SVG so there is no extra dependency)                        */
-/* -------------------------------------------------------------------------- */
-
 const Icon = ({
   children,
   className = "h-5 w-5",
@@ -92,12 +88,6 @@ const icons = {
       <path d="M21 12H9" />
     </Icon>
   ),
-  search: (
-    <Icon>
-      <circle cx="11" cy="11" r="7" />
-      <path d="m21 21-4.3-4.3" />
-    </Icon>
-  ),
   bell: (
     <Icon>
       <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
@@ -114,10 +104,6 @@ const icons = {
   ),
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Navigation                                                                 */
-/* -------------------------------------------------------------------------- */
-
 type NavItem = {
   label: string;
   to: string;
@@ -125,13 +111,12 @@ type NavItem = {
   end?: boolean;
 };
 
-// Paths are absolute so they work no matter where the link is rendered.
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", to: "/admin", icon: icons.dashboard, end: true },
   { label: "Stations", to: "/admin/stations", icon: icons.stations },
   { label: "Payments", to: "/admin/payments", icon: icons.payments },
   { label: "Routes", to: "/admin/routes", icon: icons.routes },
-  { label: "Passengers", to: "/admin/passengers", icon: icons.passengers },
+  { label: "Admins", to: "/admin/admins", icon: icons.passengers },
   { label: "Inspectors", to: "/admin/inspectors", icon: icons.inspectors },
   { label: "Profile", to: "/admin/profile", icon: icons.profile },
 ];
@@ -144,10 +129,6 @@ const initialsOf = (name: string) =>
     .map((part) => part[0]?.toUpperCase())
     .join("");
 
-/* -------------------------------------------------------------------------- */
-/*  Layout                                                                     */
-/* -------------------------------------------------------------------------- */
-
 const AdminLayout = () => {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
@@ -159,17 +140,25 @@ const AdminLayout = () => {
     email: user?.email ?? "",
   };
 
-  const pageTitle =
-    NAV_ITEMS.find((item) =>
-      item.end ? pathname === item.to : pathname.startsWith(item.to),
-    )?.label ?? "Admin";
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting =
+    hour < 12
+      ? "Welcome, good morning"
+      : hour < 17
+        ? "Welcome, good afternoon"
+        : "Welcome, good evening";
 
-  // Close the mobile drawer whenever the route changes.
+  const dateLabel = now.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Escape closes the drawer; page scroll is locked while it is open.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -191,7 +180,6 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#F4F6FA] text-[#0D1B2A]">
-      {/* Mobile overlay */}
       <div
         onClick={() => setOpen(false)}
         aria-hidden="true"
@@ -200,22 +188,20 @@ const AdminLayout = () => {
         }`}
       />
 
-      {/* Sidebar */}
       <aside
         id="admin-sidebar"
         aria-label="Admin navigation"
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-[#0D1B2A] text-white transition-[transform,visibility] duration-200 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-gradient-to-b from-[#0D1B2A] via-[#0D1B2A] to-[#0A1522] text-white shadow-[8px_0_32px_rgba(13,27,42,0.18)] transition-[transform,visibility] duration-200 lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full max-lg:invisible"
         }`}
       >
-        {/* Brand */}
-        <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-white/10 px-6">
+        <div className="flex h-[72px] shrink-0 items-center justify-between px-6">
           <NavLink to="/admin" className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#006D77] text-white">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-[#008C98] to-[#006D77] text-white shadow-[0_6px_16px_rgba(0,109,119,0.45)]">
               {icons.train}
             </span>
             <span className="text-xl font-bold tracking-tight">RailLanka</span>
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7FD6DC]">
+            <span className="rounded-full bg-[#006D77]/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#7FD6DC]">
               Admin
             </span>
           </NavLink>
@@ -223,15 +209,16 @@ const AdminLayout = () => {
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close menu"
-            className="grid h-9 w-9 place-items-center rounded-lg text-[#B9C6DA] hover:bg-white/10 hover:text-white lg:hidden"
+            className="grid h-9 w-9 place-items-center rounded-xl text-[#B9C6DA] transition-colors hover:bg-white/10 hover:text-white lg:hidden"
           >
             {icons.close}
           </button>
         </div>
 
-        {/* Links */}
+        <div className="mx-6 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
         <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-6">
-          <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-[#9FB0C8]">
+          <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7E90AB]">
             Manage
           </p>
           {NAV_ITEMS.map((item) => (
@@ -240,23 +227,35 @@ const AdminLayout = () => {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 ${
                   isActive
-                    ? "bg-[#006D77] text-white shadow-sm"
-                    : "text-[#B9C6DA] hover:bg-white/10 hover:text-white"
+                    ? "bg-[#006D77] text-white shadow-[0_8px_20px_rgba(0,109,119,0.35)]"
+                    : "text-[#B9C6DA] hover:bg-white/[0.07] hover:text-white"
                 }`
               }
             >
-              {item.icon}
-              {item.label}
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={`transition-transform duration-150 ${
+                      isActive ? "" : "group-hover:translate-x-0.5"
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span className="flex-1">{item.label}</span>
+                  {isActive && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/90" />
+                  )}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
 
-        {/* Signed-in admin */}
-        <div className="shrink-0 border-t border-white/10 p-4">
-          <div className="flex items-center gap-3 rounded-xl bg-white/5 p-3">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#006D77] text-sm font-bold">
+        <div className="shrink-0 p-4">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#008C98] to-[#006D77] text-sm font-bold">
               {initialsOf(CURRENT_ADMIN.name)}
             </span>
             <div className="min-w-0 flex-1">
@@ -272,7 +271,7 @@ const AdminLayout = () => {
               onClick={handleLogout}
               aria-label="Log out"
               title="Log out"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[#B9C6DA] transition-colors hover:bg-white/10 hover:text-white"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-[#B9C6DA] transition-colors hover:bg-[#B42318]/20 hover:text-[#FDA29B]"
             >
               {icons.logout}
             </button>
@@ -280,59 +279,59 @@ const AdminLayout = () => {
         </div>
       </aside>
 
-      {/* Content column */}
       <div className="flex min-h-screen flex-col lg:pl-72">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[#E2E7EF] bg-white/90 px-4 backdrop-blur sm:h-[72px] sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[#E2E7EF]/80 bg-white/80 px-4 backdrop-blur-xl sm:h-[72px] sm:px-6 lg:px-8">
           <button
             type="button"
             onClick={() => setOpen(true)}
             aria-label="Open menu"
             aria-expanded={open}
             aria-controls="admin-sidebar"
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#E2E7EF] bg-white text-[#0D1B2A] hover:bg-[#F4F6FA] lg:hidden"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#E2E7EF] bg-white text-[#0D1B2A] transition-colors hover:bg-[#F4F6FA] lg:hidden"
           >
             {icons.menu}
           </button>
 
-          <h1 className="truncate text-lg font-bold tracking-tight sm:text-xl">
-            {pageTitle}
-          </h1>
+          <div className="min-w-0">
+            <h1 className="truncate text-lg font-bold leading-tight tracking-tight sm:text-xl">
+              {greeting}
+            </h1>
+            <p className="hidden text-[13px] leading-tight text-[#5B6B7E] sm:block">
+              {dateLabel}
+            </p>
+          </div>
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
-            <label className="relative hidden md:block">
-              <span className="sr-only">Search</span>
-              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#5B6B7E]">
-                {icons.search}
-              </span>
-              <input
-                type="search"
-                placeholder="Search tickets, passengers…"
-                className="h-10 w-64 rounded-xl border border-[#E2E7EF] bg-white pl-10 pr-3 text-sm text-[#0D1B2A] placeholder:text-[#5B6B7E] focus:border-[#006D77] focus:outline-none focus:ring-2 focus:ring-[#006D77]/20 lg:w-72"
-              />
-            </label>
-
             <button
               type="button"
               aria-label="Notifications"
-              className="relative grid h-10 w-10 place-items-center rounded-xl border border-[#E2E7EF] bg-white text-[#5B6B7E] hover:bg-[#F4F6FA]"
+              className="relative grid h-10 w-10 place-items-center rounded-xl border border-[#E2E7EF] bg-white text-[#5B6B7E] transition-colors hover:border-[#006D77]/40 hover:bg-[#E6F2F3] hover:text-[#006D77]"
             >
               {icons.bell}
               <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-[#006D77] ring-2 ring-white" />
             </button>
 
-            <div className="flex items-center gap-3 pl-1">
-              <span className="hidden text-sm font-medium sm:block">
-                {CURRENT_ADMIN.name}
-              </span>
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-[#006D77] text-sm font-bold text-white">
+            <span className="hidden h-8 w-px bg-[#E2E7EF] sm:block" />
+
+            <NavLink
+              to="/admin/profile"
+              className="flex items-center gap-3 rounded-2xl py-1 pl-1 pr-1 transition-colors hover:bg-[#F4F6FA] sm:pr-3"
+            >
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-[#008C98] to-[#006D77] text-sm font-bold text-white shadow-[0_4px_12px_rgba(0,109,119,0.3)]">
                 {initialsOf(CURRENT_ADMIN.name)}
               </span>
-            </div>
+              <span className="hidden min-w-0 text-left sm:block">
+                <span className="block max-w-[160px] truncate text-sm font-semibold leading-tight">
+                  {CURRENT_ADMIN.name}
+                </span>
+                <span className="block text-[12px] leading-tight text-[#5B6B7E]">
+                  Administrator
+                </span>
+              </span>
+            </NavLink>
           </div>
         </header>
 
-        {/* Routed page */}
         <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
           <Outlet />
         </main>
@@ -340,8 +339,5 @@ const AdminLayout = () => {
     </div>
   );
 };
-
-
-
 
 export default AdminLayout;

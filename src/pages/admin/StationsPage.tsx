@@ -4,6 +4,7 @@ import { getAllStations } from "../../services/routeService";
 import { toast } from "sonner";
 import Loading from "../../components/ui/Loading";
 import { saveStation } from "../../services/stationService";
+import { ArrowLeftRight, ArrowUpDown } from "lucide-react";
 
 
 export interface IStation {
@@ -28,8 +29,17 @@ const inputClass =
 
 const labelClass = "mb-2 block text-[14px] font-semibold leading-snug text-[#0D1B2A]";
 
-const googleHintClass =
-    "mb-1.5 inline-flex items-center rounded-lg bg-[#E6F2F3] px-2.5 py-0.5 text-[12px] font-semibold text-[#006D77]";
+const coordLabelClass =
+    "mb-2 flex items-center gap-2.5 text-[14px] font-semibold leading-snug text-[#0D1B2A]";
+
+const coordIconClass =
+    "grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#E6F2F3] text-[#006D77]";
+
+const coordHintClass = "mt-2 text-[13px] leading-relaxed text-[#5B6B7E]";
+
+const googleLinkClass =
+    "ml-1 inline-flex items-center rounded-lg bg-[#E6F2F3] px-2 py-0.5 text-[12px] font-semibold text-[#006D77] " +
+    "transition hover:bg-[#D3E8EA] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#006D77]/20";
 
 const primaryBtnClass =
     "inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#006D77] px-8 text-[15px] font-semibold text-white " +
@@ -131,8 +141,8 @@ const StationsPage = () => {
     } else {
         return (
             <>
-                <section className="w-full flex-1 bg-[#F4F6FA] px-4 py-6 text-[#0D1B2A] sm:px-6 sm:py-8 lg:py-1">
-                    <div className="mx-auto mt-2 w-full max-w-[1280px] space-y-5 sm:space-y-6">
+                <section className="w-full flex-1 bg-[#F4F6FA] px-4 pb-6 pt-0 text-[#0D1B2A] sm:px-6 sm:pb-8 lg:pb-10">
+                    <div className="mx-auto w-full max-w-[1280px] space-y-5 sm:space-y-6">
 
                         {/* Add station card */}
                         <form
@@ -219,9 +229,14 @@ const StationsPage = () => {
                                 <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-5">
 
                                     <div>
-                                        <label htmlFor="latitude" className={labelClass}>
-                                            <span className={googleHintClass}>Search Google:</span>
-                                            <span className="block">Station Location for Latitude</span>
+                                        <label htmlFor="latitude" className={coordLabelClass}>
+                                            <span className={coordIconClass}>
+                                                <ArrowUpDown className="h-4 w-4" />
+                                            </span>
+                                            <span>
+                                                Latitude
+                                                <span className="ml-1.5 font-normal text-[#5B6B7E]">(north – south)</span>
+                                            </span>
                                         </label>
                                         <input
                                             id="latitude"
@@ -233,12 +248,28 @@ const StationsPage = () => {
                                             placeholder="e.g. 6.93389"
                                             className={inputClass}
                                         />
+                                        <p className={coordHintClass}>
+                                            Right-click the station on Google Maps and copy the first number.
+                                            <a
+                                                href="https://www.google.com/maps"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className={googleLinkClass}
+                                            >
+                                                Open Google Maps
+                                            </a>
+                                        </p>
                                     </div>
 
                                     <div>
-                                        <label htmlFor="longitude" className={labelClass}>
-                                            <span className={googleHintClass}>Search Google:</span>
-                                            <span className="block">Station Location for Longitude</span>
+                                        <label htmlFor="longitude" className={coordLabelClass}>
+                                            <span className={coordIconClass}>
+                                                <ArrowLeftRight className="h-4 w-4" />
+                                            </span>
+                                            <span>
+                                                Longitude
+                                                <span className="ml-1.5 font-normal text-[#5B6B7E]">(east – west)</span>
+                                            </span>
                                         </label>
                                         <input
                                             id="longitude"
@@ -250,6 +281,17 @@ const StationsPage = () => {
                                             placeholder="e.g. 79.85083"
                                             className={inputClass}
                                         />
+                                        <p className={coordHintClass}>
+                                            Right-click the station on Google Maps and copy the second number.
+                                            <a
+                                                href="https://www.google.com/maps"
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className={googleLinkClass}
+                                            >
+                                                Open Google Maps
+                                            </a>
+                                        </p>
                                     </div>
 
                                     <div className="sm:col-span-2">

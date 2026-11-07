@@ -18,6 +18,8 @@ import BookingDetailsPage from "../pages/passenger/BookingDetailsPage";
 import PaymentPage from "../pages/passenger/PaymentPage";
 import TicketConfirmationPage from "../pages/passenger/TicketConfirmationPage";
 import StationsPage from "../pages/admin/StationsPage";
+import AdminsPage from "../pages/admin/AdminsPage";
+import InspectorsPage from "../pages/admin/InspectorsPage";
 
 const AppRouter = () => {
     return (
@@ -38,8 +40,8 @@ const AppRouter = () => {
                 <Route path="stations" element={<StationsPage />} />
                 <Route path="routes" element={<RoutePage />} />
                 <Route path="payments" element />
-                <Route path="passengers" element />
-                <Route path="inspectors" element />
+                <Route path="admins" element={<AdminsPage />} />
+                <Route path="inspectors" element={<InspectorsPage />} />
                 <Route path="profile" element />
             </Route>
 
