@@ -44,6 +44,7 @@ const PaymentsPage = () => {
         setPayments(paymentRes.payments);
         setPagination(paymentRes.pagination);
       }
+
     } catch (error) {
       setLoading(false);
       if (axios.isAxiosError(error)) {
@@ -51,14 +52,17 @@ const PaymentsPage = () => {
       } else {
         toast.error("Something went wrong.");
       }
+
     } finally {
       setLoading(false);
     }
+
   }, [page]);
 
   useEffect(() => {
     fetchPaymenstPage();
-  }, [page]);
+    
+  }, [fetchPaymenstPage]);
 
   if (loading) {
     return <Loading />;
