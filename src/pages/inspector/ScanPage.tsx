@@ -102,10 +102,11 @@ const secondaryBtn = `${btnBase} border border-[#E2E7EF] bg-white text-[#0D1B2A]
 
 // The library injects a <video> and a shaded overlay into this element.
 const readerSkin =
-  "w-full !border-0 !p-0 [&_video]:block [&_video]:w-full [&_video]:object-cover";
+  "w-full max-w-full overflow-hidden !border-0 !p-0 [&_video]:block [&_video]:h-auto [&_video]:w-full [&_video]:max-w-full [&_video]:object-cover";
 
+// min-w-0 lets cards shrink inside grid/flex parents instead of overflowing.
 const cardClass =
-  "rounded-2xl border border-[#E2E7EF] bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6";
+  "min-w-0 rounded-2xl border border-[#E2E7EF] bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6";
 
 const formatTime = () =>
   new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -154,7 +155,7 @@ const ScanPage = () => {
   const [history, setHistory] = useState<ScanRecord[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // Lets a new camera session wait until the previous one has fully stopped.
+
   const teardownRef = useRef<Promise<void>>(Promise.resolve());
 
   const verifyQRCode = useCallback(async (decodedText: string, time: string) => {
@@ -196,7 +197,7 @@ const ScanPage = () => {
     [verifyQRCode]
   );
 
-  // Camera lifecycle. Safe under React StrictMode (mount, unmount, mount).
+
   useEffect(() => {
     if (status !== "scanning") return;
 
@@ -236,7 +237,7 @@ const ScanPage = () => {
         try {
           await scanner.start({ facingMode: facing }, config, onSuccess, onFrameError);
         } catch (firstErr) {
-          // Some devices reject facingMode; fall back to the first camera found.
+
           const cameras = await Html5Qrcode.getCameras().catch(() => []);
           if (!cameras.length) throw firstErr;
           await scanner.start(cameras[0].id, config, onSuccess, onFrameError);
@@ -259,7 +260,7 @@ const ScanPage = () => {
           if (instance.current?.isScanning) await instance.current.stop();
           instance.current?.clear();
         } catch {
-          // Already stopped.
+
         }
       })();
     };
@@ -293,7 +294,7 @@ const ScanPage = () => {
       try {
         fileScanner.clear();
       } catch {
-        // Nothing to clear.
+
       }
     }
   };
@@ -301,7 +302,7 @@ const ScanPage = () => {
   const cfg = OUTCOMES[outcome];
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       <Link
         to=".."
         className="mb-4 inline-flex items-center gap-2 rounded-lg py-1 pr-2 text-sm font-semibold text-[#5B6B7E] transition hover:text-[#006D77] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#006D77]/20"
@@ -317,7 +318,8 @@ const ScanPage = () => {
         Point the camera at the passenger&rsquo;s QR e-ticket to verify it.
       </p>
 
-      <div className="mt-6 grid gap-6 sm:mt-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start xl:grid-cols-[minmax(0,1fr)_380px]">
+      {/* grid-cols-1 is the key fix: without it the single column grows to fit long tokens */}
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:mt-8 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start xl:grid-cols-[minmax(0,1fr)_380px]">
         {/* Main card */}
         <section className={`${cardClass} lg:p-8`}>
           {/* Hidden mount point used when scanning an uploaded image */}
@@ -357,7 +359,7 @@ const ScanPage = () => {
                 {camState === "error" && (
                   <div
                     role="alert"
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#F4F6FA] p-6 text-center"
+                    className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#F4F6FA] p-4 text-center sm:p-6"
                   >
                     <span className="grid h-12 w-12 place-items-center rounded-full bg-[#FDECEA] text-[#B42318]">
                       <CameraOff size={22} />
@@ -377,7 +379,8 @@ const ScanPage = () => {
                 )}
               </div>
 
-              <div className="mx-auto mt-4 grid w-full max-w-xl grid-cols-2 gap-3">
+              {/* Stacked on phones, side by side from sm up */}
+              <div className="mx-auto mt-4 grid w-full max-w-xl grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                   type="button"
                   onClick={switchCamera}
@@ -418,11 +421,11 @@ const ScanPage = () => {
           {status === "verifying" && (
             <div
               role="status"
-              className="flex flex-col items-center gap-3 py-12 text-center sm:py-16"
+              className="flex min-w-0 flex-col items-center gap-3 py-10 text-center sm:py-16"
             >
               <Loader2 className="h-8 w-8 animate-spin text-[#006D77] sm:h-10 sm:w-10" />
               <h2 className="text-lg font-bold sm:text-xl">Verifying ticket…</h2>
-              <p className="w-full max-w-md truncate text-xs text-[#5B6B7E] sm:text-sm">
+              <p className="w-full max-w-md truncate px-2 text-xs text-[#5B6B7E] sm:text-sm">
                 {token}
               </p>
             </div>
@@ -431,16 +434,16 @@ const ScanPage = () => {
           {status === "result" && (
             <div
               role="status"
-              className="mx-auto flex max-w-md flex-col items-center gap-4 py-2 text-center sm:gap-5 sm:py-6"
+              className="mx-auto flex w-full min-w-0 max-w-md flex-col items-center gap-4 py-2 text-center sm:gap-5 sm:py-6"
             >
               <span
-                className={`grid h-16 w-16 place-items-center rounded-full ring-8 sm:h-20 sm:w-20 ${cfg.tile}`}
+                className={`grid h-16 w-16 shrink-0 place-items-center rounded-full ring-8 sm:h-20 sm:w-20 ${cfg.tile}`}
               >
                 <cfg.Icon className="h-8 w-8 sm:h-10 sm:w-10" />
               </span>
 
-              <div>
-                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              <div className="w-full min-w-0">
+                <h2 className="text-xl font-bold tracking-tight sm:text-3xl">
                   {cfg.title}
                 </h2>
                 <p className="mt-1 text-xs text-[#5B6B7E]">
@@ -449,12 +452,12 @@ const ScanPage = () => {
               </div>
 
               <p
-                className={`w-full break-words rounded-2xl px-4 py-3 text-sm font-semibold sm:px-5 sm:py-4 sm:text-base ${cfg.box}`}
+                className={`w-full min-w-0 break-words rounded-2xl px-4 py-3 text-sm font-semibold sm:px-5 sm:py-4 sm:text-base ${cfg.box}`}
               >
                 {message}
               </p>
 
-              <p className="w-full truncate text-xs text-[#5B6B7E]">
+              <p className="w-full min-w-0 truncate text-xs text-[#5B6B7E]">
                 Token: {token}
               </p>
 
@@ -471,7 +474,7 @@ const ScanPage = () => {
         </section>
 
         {/* Side panels: stacked on mobile, two columns on tablet, sidebar on laptop */}
-        <aside className="grid gap-6 md:grid-cols-2 lg:grid-cols-1">
+        <aside className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-1">
           <div className={cardClass}>
             <h2 className="text-base font-bold">Tips for a clean scan</h2>
             <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-[#5B6B7E] marker:text-[#006D77]">
@@ -494,7 +497,7 @@ const ScanPage = () => {
                   return (
                     <li
                       key={item.id}
-                      className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+                      className="flex min-w-0 items-center gap-3 py-3 first:pt-0 last:pb-0"
                     >
                       <span
                         className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${box}`}
@@ -502,7 +505,7 @@ const ScanPage = () => {
                         <Icon size={18} />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold">{title}</p>
+                        <p className="truncate text-sm font-semibold">{title}</p>
                         <p className="truncate text-xs text-[#5B6B7E]">
                           {item.token}
                         </p>

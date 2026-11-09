@@ -22,6 +22,7 @@ import AdminsPage from "../pages/admin/AdminsPage";
 import InspectorsPage from "../pages/admin/InspectorsPage";
 import ScanPage from "../pages/inspector/ScanPage";
 import PaymentsPage from "../pages/admin/PaymentsPage";
+import MyTicketsPage from "../pages/passenger/MyTicketsPage";
 
 const AppRouter = () => {
     return (
@@ -56,7 +57,7 @@ const AppRouter = () => {
             }>
                 <Route index element={<PassengerDashboard />} />
                 <Route path="profile" element />
-                <Route path="tickets" element />
+                <Route path="tickets" element={<MyTicketsPage />} />
                 <Route path="searched-routes" element={<SearchedRoutesPage />} />
                 <Route path="booking" element={<BookingDetailsPage />} />
                 <Route path="payment" element={<PaymentPage />}  />

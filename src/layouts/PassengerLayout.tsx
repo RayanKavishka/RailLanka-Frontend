@@ -1,4 +1,3 @@
-
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import useAuthContext from "../hooks/useAuth";
@@ -9,14 +8,13 @@ import useAuthContext from "../hooks/useAuth";
 
 const PATHS = {
     home: "/passenger",
-    tickets: "/tickets",
-    history: "/history",
-    profile: "/profile",
+    tickets: "/passenger/tickets",
+    profile: "/passenger/profile",
+    login: "/login",
+    register: "/register",
     help: "/help",
     privacy: "/privacy",
     terms: "/terms",
-    login: "/login",
-    register: "/register",
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -110,7 +108,6 @@ const FOOTER_LINK =
 const NAV_LINKS = [
     { label: "Home", to: PATHS.home, end: true },
     { label: "My Tickets", to: PATHS.tickets, end: false },
-    { label: "Booking History", to: PATHS.history, end: false },
 ];
 
 const FOOTER_COLUMNS: FooterColumn[] = [
@@ -119,7 +116,6 @@ const FOOTER_COLUMNS: FooterColumn[] = [
         links: [
             { label: "Home", to: PATHS.home },
             { label: "My Tickets", to: PATHS.tickets },
-            { label: "Booking History", to: PATHS.history },
         ],
     },
     {
@@ -197,9 +193,8 @@ const PassengerLayout = () => {
     const { pathname } = useLocation();
     const [menuOpen, setMenuOpen] = useState(false);
 
-
     const { user } = useAuthContext();
-    const USER_NAME: string = user?.fullName as string;
+    const USER_NAME: string = user?.fullName ?? "";
 
     useEffect(() => {
         setMenuOpen(false);
