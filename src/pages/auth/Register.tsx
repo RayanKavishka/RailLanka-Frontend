@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import axios from "axios";
-import { Loader2, Lock, Mail, Phone, User } from "lucide-react";
+import { ArrowLeft, Loader2, Lock, Mail, Phone, User } from "lucide-react";
 import { register } from "../../services/authService";
 import AuthLayout, { AuthField } from "../../layouts/AuthLayout";
 
@@ -60,6 +60,15 @@ const Register = () => {
       title="Create your account"
       subtitle="It only takes a minute. No fees to sign up."
     >
+      <button
+        type="button"
+        onClick={() => navigate("/")}
+        className="inline-flex w-fit items-center gap-2 rounded-lg py-1 pr-2 text-sm font-semibold text-[#5B6B7E] transition hover:text-[#006D77] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#006D77]/20"
+      >
+        <ArrowLeft size={18} aria-hidden="true" />
+        Back
+      </button>
+
       <form 
         onSubmit={(e) => {
           e.preventDefault();

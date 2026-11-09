@@ -20,6 +20,7 @@ import TicketConfirmationPage from "../pages/passenger/TicketConfirmationPage";
 import StationsPage from "../pages/admin/StationsPage";
 import AdminsPage from "../pages/admin/AdminsPage";
 import InspectorsPage from "../pages/admin/InspectorsPage";
+import ScanPage from "../pages/inspector/ScanPage";
 
 const AppRouter = () => {
     return (
@@ -71,7 +72,7 @@ const AppRouter = () => {
             }>
                 <Route index element={<InspectorDashboard />} />
                 <Route path="profile" element />
-                <Route path="scan-qr" element />
+                <Route path="scan" element={<ScanPage />} />
             </Route>
 
             {/* Public Routes */}
