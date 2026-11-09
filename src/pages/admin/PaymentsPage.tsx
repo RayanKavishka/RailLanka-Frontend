@@ -8,9 +8,9 @@ export interface PaymentDetails {
   journey: string;
   passengerEmail: string;
   amount: number;
-  payMethod: PayMethod;
+  payMethod: string;
   paymentDate: Date;
-  paymentStatus: PayStatus;
+  paymentStatus: string;
 }
 
 export interface PaymentPagination {
