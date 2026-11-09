@@ -21,6 +21,7 @@ import StationsPage from "../pages/admin/StationsPage";
 import AdminsPage from "../pages/admin/AdminsPage";
 import InspectorsPage from "../pages/admin/InspectorsPage";
 import ScanPage from "../pages/inspector/ScanPage";
+import PaymentsPage from "../pages/admin/PaymentsPage";
 
 const AppRouter = () => {
     return (
@@ -40,7 +41,7 @@ const AppRouter = () => {
                 <Route index element={<AdminDashboard />} />
                 <Route path="stations" element={<StationsPage />} />
                 <Route path="routes" element={<RoutePage />} />
-                <Route path="payments" element />
+                <Route path="payments" element={<PaymentsPage />} />
                 <Route path="admins" element={<AdminsPage />} />
                 <Route path="inspectors" element={<InspectorsPage />} />
                 <Route path="profile" element />
