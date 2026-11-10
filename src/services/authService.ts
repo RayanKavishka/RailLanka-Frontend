@@ -34,3 +34,32 @@ export const getMyDetails = async () => {
 
     return res;
 }
+
+export const forgotPassword = async (email: string) => {
+    const res = await api.post("/auth/forgot-password", {
+        email
+    });
+
+    return res;
+}
+
+export const verifyOTP = async (email: string, otp: string) => {
+    const res = await api.get("/auth/verify-otp", {
+        params: {
+            email,
+            otp
+        }
+    });
+
+    return res;
+}
+
+export const resetPassword = async (email: string, resetToken: string, newPassword: string) => {
+    const res = api.post("/auth/reset-password", {
+        userEmail: email,
+        resetToken,
+        newPassword
+    });
+
+    return res;
+}
