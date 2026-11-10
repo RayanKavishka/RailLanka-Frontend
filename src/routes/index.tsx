@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
@@ -47,6 +47,8 @@ const AppRouter = () => {
                 <Route path="admins" element={<AdminsPage />} />
                 <Route path="inspectors" element={<InspectorsPage />} />
                 <Route path="profile" element={<UserProfilePage />} />
+
+                <Route path="*" element={<Navigate to="/admin" replace />} />
             </Route>
 
 
@@ -64,6 +66,8 @@ const AppRouter = () => {
                 <Route path="payment" element={<PaymentPage />}  />
                 <Route path="payment-success" element={<TicketConfirmationPage />} />
                 <Route path="payment-cancel" element={<TicketConfirmationPage cancelled />} />
+
+                <Route path="*" element={<Navigate to="/passenger" replace />} />
             </Route>
 
 
@@ -76,6 +80,8 @@ const AppRouter = () => {
                 <Route index element={<InspectorDashboard />} />
                 <Route path="profile" element={<UserProfilePage />} />
                 <Route path="scan" element={<ScanPage />} />
+
+                <Route path="*" element={<Navigate to="/inspector" replace />} />
             </Route>
 
             {/* Public Routes */}
@@ -84,6 +90,8 @@ const AppRouter = () => {
                 <Route path="register" element={<Register />} />
                 <Route path="login" element={<Login />} />
             </Route>
+
+            <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         </BrowserRouter>
   );
