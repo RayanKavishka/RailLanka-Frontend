@@ -23,6 +23,7 @@ import InspectorsPage from "../pages/admin/InspectorsPage";
 import ScanPage from "../pages/inspector/ScanPage";
 import PaymentsPage from "../pages/admin/PaymentsPage";
 import MyTicketsPage from "../pages/passenger/MyTicketsPage";
+import UserProfilePage from "../pages/common/UserProfilePage";
 
 const AppRouter = () => {
     return (
@@ -45,7 +46,7 @@ const AppRouter = () => {
                 <Route path="payments" element={<PaymentsPage />} />
                 <Route path="admins" element={<AdminsPage />} />
                 <Route path="inspectors" element={<InspectorsPage />} />
-                <Route path="profile" element />
+                <Route path="profile" element={<UserProfilePage />} />
             </Route>
 
 
@@ -56,7 +57,7 @@ const AppRouter = () => {
                 </RequireAuth>
             }>
                 <Route index element={<PassengerDashboard />} />
-                <Route path="profile" element />
+                <Route path="profile" element={<UserProfilePage />} />
                 <Route path="tickets" element={<MyTicketsPage />} />
                 <Route path="searched-routes" element={<SearchedRoutesPage />} />
                 <Route path="booking" element={<BookingDetailsPage />} />
@@ -73,7 +74,7 @@ const AppRouter = () => {
                 </RequireAuth>
             }>
                 <Route index element={<InspectorDashboard />} />
-                <Route path="profile" element />
+                <Route path="profile" element={<UserProfilePage />} />
                 <Route path="scan" element={<ScanPage />} />
             </Route>
 

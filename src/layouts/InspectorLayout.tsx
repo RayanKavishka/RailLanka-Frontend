@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import { Loader2, TrainFront } from "lucide-react";
 
 import type { IUser } from "../context/AuthContext";
@@ -43,9 +43,12 @@ const InspectorLayout = () => {
   return (
     <div className="min-h-screen bg-[#F4F6FA] font-['Plus_Jakarta_Sans',ui-sans-serif,system-ui,sans-serif] text-[#0D1B2A]">
       <header className="border-b border-[#E2E7EF] bg-white">
-        <div className="mx-auto flex h-[72px] w-full max-w-[1328px] items-center justify-between px-6 md:h-[88px]">
+        <div className="mx-auto grid h-[72px] w-full max-w-[1328px] grid-cols-[1fr_auto_1fr] items-center px-6 md:h-[88px]">
           {/* Logo */}
-          <Link to="." className="flex items-center gap-3">
+          <Link
+            to="/inspector"
+            className="flex items-center gap-3 justify-self-start"
+          >
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#006D77] text-white">
               <TrainFront size={20} strokeWidth={2} />
             </span>
@@ -54,11 +57,28 @@ const InspectorLayout = () => {
             </span>
           </Link>
 
+          {/* Center nav */}
+          <nav aria-label="Main navigation" className="justify-self-center">
+            <NavLink
+              to="/inspector"
+              end
+              className={({ isActive }) =>
+                `rounded-xl px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#006D77]/30 ${
+                  isActive
+                    ? "text-[#006D77]"
+                    : "text-[#5B6B7E] hover:text-[#0D1B2A]"
+                }`
+              }
+            >
+              Home
+            </NavLink>
+          </nav>
+
           {/* Inspector chip */}
           <Link
-            to="profile"
+            to="/inspector/profile"
             aria-label="Profile Settings"
-            className="flex items-center gap-3"
+            className="flex items-center gap-3 justify-self-end"
           >
             {inspector && (
               <span className="hidden text-sm font-semibold sm:block">
