@@ -44,6 +44,7 @@ interface IconProps {
 const PATHS = {
   tickets: "/tickets",
   routes: "/routes",
+  ai: "ai-assistant",
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -202,6 +203,13 @@ const TRUST_ITEMS = [
   { icon: QrIcon, label: "QR e-tickets" },
   { icon: ShieldIcon, label: "Secure payment" },
   { icon: MailIcon, label: "Email confirmation" },
+];
+
+const AI_PROMPTS = [
+  "Show journeys from Colombo Fort to Kandy today",
+  "What is the timetable for the Colombo to Galle route?",
+  "Show my latest tickets",
+  "Is my QR code still valid?",
 ];
 
 const ROUTES: Route[] = [
@@ -646,8 +654,58 @@ const PassengerDashboard = () => {
         </div>
       </section>
 
+      {/* ------------------------- AI assistant ------------------------- */}
+      <section id="ai" className="py-16 sm:py-20 lg:py-24">
+        <div className={CONTAINER}>
+          <div className="grid items-center gap-8 overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#0D1B2A_0%,#13264F_55%,#006D77_100%)] px-6 py-8 text-white sm:gap-10 sm:rounded-[32px] sm:p-10 lg:grid-cols-2 lg:gap-14 lg:px-14 lg:py-14">
+            <div>
+              <p className="text-sm font-bold uppercase leading-[18px] tracking-[0.14em] text-[#7FD6DC]">
+                New · AI assistant
+              </p>
+              <h2 className="mt-3 text-[28px] font-extrabold leading-9 tracking-[-0.02em] sm:text-[36px] sm:leading-[44px] lg:text-[40px] lg:leading-[48px]">
+                Ask RailLanka AI anything about your trip
+              </h2>
+              <p className="mt-4 max-w-[520px] text-base leading-6 text-white/75 sm:text-[17px] sm:leading-7">
+                Check timetables, find journeys, and look up your own tickets,
+                payments and QR codes by simply asking.
+              </p>
+
+              <Link
+                to={PATHS.ai}
+                className={`${BTN} mt-7 h-[55px] w-full rounded-2xl bg-white px-7 text-base font-bold text-[#0D1B2A] sm:w-auto`}
+              >
+                Start chatting
+                <ArrowRightIcon size={18} />
+              </Link>
+            </div>
+
+            <div className="rounded-3xl border border-white/15 bg-white/[0.07] p-4 sm:p-6">
+              <p className="px-1 text-xs font-bold uppercase tracking-[0.14em] text-white/60">
+                Try asking
+              </p>
+              <ul className="mt-3 flex flex-col gap-2.5 sm:gap-3">
+                {AI_PROMPTS.map((prompt) => (
+                  <li key={prompt}>
+                    <Link
+                      to={`${PATHS.ai}?q=${encodeURIComponent(prompt)}`}
+                      className={`group flex items-center justify-between gap-3 rounded-2xl bg-white/10 px-4 py-3.5 text-left text-[15px] leading-5 text-white transition hover:bg-white/[0.18] motion-reduce:transition-none ${FOCUS}`}
+                    >
+                      <span className="min-w-0">{prompt}</span>
+                      <ArrowRightIcon
+                        size={18}
+                        className="shrink-0 text-[#7FD6DC] transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+                      />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ---------------------------- Why ------------------------------ */}
-      <section id="why" className="py-16 sm:py-20 lg:py-24">
+      <section id="why" className="bg-[#F4F6FA] py-16 sm:py-20 lg:py-24">
         <div className={CONTAINER}>
           <div className="mb-10 text-center sm:mb-12">
             <p className={EYEBROW}>Why RailLanka</p>
@@ -658,7 +716,7 @@ const PassengerDashboard = () => {
             {FEATURES.map(({ icon: Glyph, title, body }, i) => (
               <article
                 key={title}
-                className={`rounded-3xl bg-[#F4F6FA] p-6 sm:p-8 ${
+                className={`rounded-3xl bg-white p-6 sm:p-8 ${
                   i === FEATURES.length - 1 ? "md:col-span-2 lg:col-span-1" : ""
                 }`}
               >

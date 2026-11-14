@@ -9,6 +9,7 @@ import useAuthContext from "../hooks/useAuth";
 const PATHS = {
     home: "/passenger",
     tickets: "/passenger/tickets",
+    ai: "/passenger/ai-assistant",
     profile: "/passenger/profile",
     login: "/login",
     register: "/register",
@@ -108,6 +109,7 @@ const FOOTER_LINK =
 const NAV_LINKS = [
     { label: "Home", to: PATHS.home, end: true },
     { label: "My Tickets", to: PATHS.tickets, end: false },
+    { label: "AI Assistant", to: PATHS.ai, end: false },
 ];
 
 const FOOTER_COLUMNS: FooterColumn[] = [

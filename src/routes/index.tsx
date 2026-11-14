@@ -24,6 +24,7 @@ import ScanPage from "../pages/inspector/ScanPage";
 import PaymentsPage from "../pages/admin/PaymentsPage";
 import MyTicketsPage from "../pages/passenger/MyTicketsPage";
 import UserProfilePage from "../pages/common/UserProfilePage";
+import AiChatPage from "../pages/passenger/AiChatPage";
 
 const AppRouter = () => {
     return (
@@ -66,6 +67,7 @@ const AppRouter = () => {
                 <Route path="payment" element={<PaymentPage />}  />
                 <Route path="payment-success" element={<TicketConfirmationPage />} />
                 <Route path="payment-cancel" element={<TicketConfirmationPage cancelled />} />
+                <Route path="ai-assistant" element={<AiChatPage />} />
 
                 <Route path="*" element={<Navigate to="/passenger" replace />} />
             </Route>
