@@ -16,7 +16,7 @@ const PublicRoute = () => {
             path = "/passenger";
 
         } else if (activeRole === "TICKET_INSPECTOR") {
-            path = "inspector";
+            path = "/inspector";
 
         } else {
             path = "/";
